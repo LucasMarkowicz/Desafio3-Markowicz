@@ -6,7 +6,7 @@ class ProductManager {
   constructor(path) {
     this.path = path;
     this.products = [];
-    this.idCounter = 0;
+    this.idCounter = 1;
     this.readProducts();
   }
 
@@ -44,16 +44,17 @@ class ProductManager {
     return product ? product : "No se encuentra dicho producto";
   }
 
-  updateProduct(id, field, value) {
+  updateProduct(id, updates) {
     const productIndex = this.products.findIndex(p => p.id === id);
     if (productIndex === -1) {
       console.log("No se encuentra dicho producto");
       return;
     }
 
-    this.products[productIndex][field] = value;
+    this.products[productIndex] = {...this.products[productIndex], ...updates};
     this.writeProducts();
   }
+
 
   deleteProduct(id) {
     const productIndex = this.products.findIndex(p => p.id === id);

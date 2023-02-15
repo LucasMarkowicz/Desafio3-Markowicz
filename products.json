@@ -1,6 +1,6 @@
 [
     {
-        "id": 0,
+        "id": 1,
         "title": "Remera",
         "description": "Roja",
         "price": 1000,
@@ -9,7 +9,7 @@
         "stock": 50
     },
     {
-        "id": 1,
+        "id": 2,
         "title": "Pantalon",
         "description": "Azul",
         "price": 1200,
@@ -18,16 +18,16 @@
         "stock": 20
     },
     {
-        "id": 2,
-        "title": "Zapatillas",
-        "description": "Verdes",
-        "price": 1500,
+        "id": 3,
+        "title": "Nuevo título",
+        "description": "Nueva descripción",
+        "price": 10000,
         "thumbnail": "thumbnail",
         "code": "Zapatillas01",
         "stock": 30
     },
     {
-        "id": 3,
+        "id": 4,
         "title": "Buzo",
         "description": "Naranja",
         "price": 1800,
@@ -36,7 +36,7 @@
         "stock": 50
     },
     {
-        "id": 4,
+        "id": 5,
         "title": "Remera",
         "description": "Negra",
         "price": 1300,
@@ -45,7 +45,7 @@
         "stock": 40
     },
     {
-        "id": 5,
+        "id": 6,
         "title": "Pantalon",
         "description": "Gris",
         "price": 1400,
@@ -54,7 +54,7 @@
         "stock": 25
     },
     {
-        "id": 6,
+        "id": 7,
         "title": "Zapatillas",
         "description": "Blancas",
         "price": 1700,
@@ -63,7 +63,7 @@
         "stock": 35
     },
     {
-        "id": 7,
+        "id": 8,
         "title": "Buzo",
         "description": "Rojo",
         "price": 2000,
@@ -72,7 +72,7 @@
         "stock": 60
     },
     {
-        "id": 8,
+        "id": 9,
         "title": "Remera",
         "description": "Amarilla",
         "price": 1100,
@@ -81,7 +81,7 @@
         "stock": 45
     },
     {
-        "id": 9,
+        "id": 10,
         "title": "Pantalon",
         "description": "Marrón",
         "price": 1500,
