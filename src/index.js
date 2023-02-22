@@ -12,6 +12,7 @@ app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', './src/views');
 
+
 //endpoint home
 app.get('/', (req, res) => {
   const products = manager.getProducts();
@@ -19,7 +20,6 @@ app.get('/', (req, res) => {
 });
 
 app.use(express.json());
-
 
 //endpoint products
 app.get('/api/products', (req, res) => {
@@ -116,7 +116,30 @@ app.post('/api/carts/', (req, res) => {
     }
   });
 
+  //websockets
+  const http = require('http');
+const socketIO = require('socket.io');
+const server = http.createServer(app);
+const io = socketIO(server);
 
-app.listen(port, () => {
-  console.log(`Server executed on http://localhost:${port}`);
+// Manejar las conexiones de los clientes
+io.on('connection', socket => {
+  console.log('Cliente conectado');
+
+  // Manejar la desconexión de los clientes
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado');
+  });
 });
+
+// Agregar la ruta para la vista de productos en tiempo real
+app.get('/realtimeproducts', (req, res) => {
+  const products = manager.getProducts();
+  res.render('realTimeProducts', { products });
+});
+
+// Iniciar el servidor
+server.listen(port, () => {
+  console.log(`Servidor iniciado en http://localhost:${port}`);
+});
+
