@@ -1,16 +1,25 @@
 const express = require('express');
+const { engine } = require('express-handlebars');
 const ProductManager = require('./productManager.js');
 const CartManager = require('./cartManager.js');
-
+const app = express();
+const port = 8080;
 
 const manager = new ProductManager('./products.json');
 const cartManager = new CartManager('./carts.json');
 
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', './src/views');
 
-const app = express();
-const port = 8080;
+//endpoint home
+app.get('/', (req, res) => {
+  const products = manager.getProducts();
+  res.render('home', { products });
+});
 
 app.use(express.json());
+
 
 //endpoint products
 app.get('/api/products', (req, res) => {
@@ -24,8 +33,7 @@ app.get('/api/products', (req, res) => {
   if (limit) {
     res.json({ products: products.slice(0, limit) });
   } else {
-    res.json({ products: products });
-  }
+    res.json({ products: products });  }
 });
 
 app.get('/api/products/:pid', (req, res) => {
@@ -107,7 +115,6 @@ app.post('/api/carts/', (req, res) => {
       res.status(404).send("No se encontró el carrito o el producto");
     }
   });
-  
 
 
 app.listen(port, () => {
