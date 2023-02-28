@@ -1,3 +1,4 @@
+const http = require('http');
 const express = require('express');
 const { engine } = require('express-handlebars');
 const ProductManager = require('./productManager.js');
@@ -5,12 +6,19 @@ const CartManager = require('./cartManager.js');
 const app = express();
 const port = 8080;
 
+const server = http.createServer(app); 
+const io = require('socket.io')(server);
+
+
+
 const manager = new ProductManager('./products.json');
 const cartManager = new CartManager('./carts.json');
 
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', './src/views');
+app.use(express.json());
+app.use(express.static(__dirname + '/public'));
 
 
 //endpoint home
@@ -19,7 +27,6 @@ app.get('/', (req, res) => {
   res.render('home', { products });
 });
 
-app.use(express.json());
 
 //endpoint products
 app.get('/api/products', (req, res) => {
@@ -49,8 +56,9 @@ app.get('/api/products/:pid', (req, res) => {
 
 app.post('/api/products', (req, res) => {
   const { title, description, price, thumbnail, code, stock } = req.body;
-  manager.addProduct(manager.idCounter, title, description, price, thumbnail, code, stock);
+  const newProduct = manager.addProduct(manager.idCounter, title, description, price, thumbnail, code, stock);
   res.send("Producto agregado exitosamente");
+  io.emit('addProduct', newProduct);
 });
 
 app.put('/api/products/:pid', (req, res) => {
@@ -70,17 +78,19 @@ app.put('/api/products/:pid', (req, res) => {
   });
   
 
-app.delete('/api/products/:pid', (req, res) => {
-  const pid = parseInt(req.params.pid);
-  const products = manager.getProducts();
-  const productIndex = products.findIndex(p => p.id === pid);
-  if (productIndex === -1) {
-    res.status(404).send('Producto no encontrado');
-  } else {
-    manager.deleteProduct(pid);
-    res.send("Producto eliminado exitosamente");
-  }
-});
+  app.delete('/api/products/:pid', (req, res) => {
+    const pid = parseInt(req.params.pid);
+    const products = manager.getProducts();
+    const productIndex = products.findIndex(p => p.id === pid);
+    if (productIndex === -1) {
+      res.status(404).send('Producto no encontrado');
+    } else {
+      manager.deleteProduct(pid);
+      res.send("Producto eliminado exitosamente");
+      io.emit('deleteProduct', pid);
+    }
+  });
+  
 
 //endpoints carrito
 
@@ -117,24 +127,38 @@ app.post('/api/carts/', (req, res) => {
   });
 
   //websockets
-  const http = require('http');
-const socketIO = require('socket.io');
-const server = http.createServer(app);
-const io = socketIO(server);
 
-
-io.on('connection', socket => {
-  console.log('Cliente conectado');
-
-  socket.on('disconnect', () => {
-    console.log('Cliente desconectado');
+  io.on('connection', socket => {
+    console.log('Cliente conectado');
+    socket.on('message', message => {
+      const { type, payload } = JSON.parse(message);
+      if (type === 'addProduct') {
+        const { title, description, price, thumbnail, code, stock } = payload;
+        manager.addProduct(manager.idCounter, title, description, price, thumbnail, code, stock);
+        const products = manager.getProducts();
+        io.sockets.emit('addProduct', products);
+      }
+    });
+  
+    socket.on('deleteProduct', (data) => {
+      const pid = data.id;
+      const result = manager.deleteProduct(pid);
+      if (result) {
+        io.sockets.emit('deleteProduct', pid);
+      }
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('Cliente desconectado');
+    });
   });
-});
+  
+    
+  app.get('/realtimeproducts', (req, res) => {
+    const products = manager.getProducts();
+    res.render('realTimeProducts', { products });
+  });
 
-app.get('/realtimeproducts', (req, res) => {
-  const products = manager.getProducts();
-  res.render('realTimeProducts', { products });
-});
 
 server.listen(port, () => {
   console.log(`Servidor iniciado en http://localhost:${port}`);
