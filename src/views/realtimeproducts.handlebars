@@ -13,9 +13,12 @@
           {{this.description}}
           <br />
           ${{this.price}}
-          <form id="delete-product-form" method="POST" action="/api/products/{{this.id}}">
-  <input type="hidden" name="_method" value="DELETE">
+          <form method="POST" action="/api/products/{{this.id}}?_method=DELETE">
+  <input type="hidden" name="id" value="{{this.id}}">
   <button type="submit">Eliminar</button>
+</form>
+
+
 </form>
         </li>
       {{/each}}

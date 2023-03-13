@@ -5,7 +5,8 @@ const ProductManager = require('./productManager.js');
 const CartManager = require('./cartManager.js');
 const app = express();
 const port = 8080;
-
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
 const server = http.createServer(app); 
 const io = require('socket.io')(server);
 
@@ -91,6 +92,7 @@ app.put('/api/products/:pid', (req, res) => {
     }
   });
   
+  
 
 //endpoints carrito
 
@@ -152,6 +154,7 @@ app.post('/api/carts/', (req, res) => {
       console.log('Cliente desconectado');
     });
   });
+  
   
     
   app.get('/realtimeproducts', (req, res) => {

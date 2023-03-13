@@ -31,12 +31,12 @@ const form2 = document.getElementById('delete-product-form');
 form2.addEventListener('submit', e => {
   e.preventDefault();
   const formData = new FormData(e.target);
-  const productId = formData.get('productId');
-  fetch(`/api/products/${productId}`, { method: 'DELETE' })
+  const pid = formData.get('pid');
+  fetch(`/api/products/${pid}`, { method: 'DELETE' })
     .then(response => {
       if (response.ok) {
         console.log('Producto eliminado exitosamente');
-        socket.emit('message', JSON.stringify({ type: 'deleteProduct', payload: productId }));
+        socket.emit('message', JSON.stringify({ type: 'deleteProduct', payload: pid }));
       } else {
         console.log('Error al eliminar producto');
       }
