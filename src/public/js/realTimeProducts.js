@@ -27,22 +27,28 @@ form.addEventListener('submit', e => {
   });
 });
 
-const form2 = document.getElementById('delete-product-form');
-form2.addEventListener('submit', e => {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const pid = formData.get('pid');
-  fetch(`/api/products/${pid}`, { method: 'DELETE' })
-    .then(response => {
-      if (response.ok) {
+
+
+
+
+const deleteForms = document.querySelectorAll('#delete-form');
+
+deleteForms.forEach(form => {
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const pid = form.getAttribute('data-id');
+    fetch(`/api/products/${pid}`, {
+      method: 'DELETE'
+    }).then(response => {
+      if (response.ok) {  
+        location.reload();
         console.log('Producto eliminado exitosamente');
-        socket.emit('message', JSON.stringify({ type: 'deleteProduct', payload: pid }));
       } else {
-        console.log('Error al eliminar producto');
+        console.log('Hubo un error al eliminar el producto');
       }
-    })
-    .catch(error => {
-      console.error('Error al eliminar producto:', error);
+      
     });
+    
+  });
 });
 
