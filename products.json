@@ -1,1 +1,42 @@
-[{"id":1,"title":"Remera","description":"Roja","price":1000,"thumbnail":"thumbnail","code":"Remera01","stock":50},{"id":2,"title":"Pantalon","description":"Azul","price":1200,"thumbnail":"thumbnail","code":"Pantalon01","stock":20},{"id":3,"title":"Nuevo título","description":"Nueva descripción","price":10000,"thumbnail":"thumbnail","code":"Zapatillas01","stock":30},{"id":4,"title":"Buzo","description":"Naranja","price":1800,"thumbnail":"thumbnail","code":"Buzo01","stock":50},{"id":5,"title":"Remera","description":"Lila","price":"1500","thumbnail":"thumbnail","code":"RM02","stock":"20"},{"id":6,"title":"Short","description":"Rojo","price":"1200","thumbnail":"thumbnail","code":"SH01","stock":"100"}]
+[
+    {
+        "title": "Remera",
+        "description": "Roja",
+        "price": 1000,
+        "thumbnail": "thumbnail",
+        "code": "Remera01",
+        "stock": 50
+    },
+    {
+        "title": "Pantalon",
+        "description": "Azul",
+        "price": 1200,
+        "thumbnail": "thumbnail",
+        "code": "Pantalon01",
+        "stock": 20
+    },
+    {
+        "title": "Nuevo título",
+        "description": "Nueva descripción",
+        "price": 10000,
+        "thumbnail": "thumbnail",
+        "code": "Zapatillas01",
+        "stock": 30
+    },
+    {
+        "title": "Buzo",
+        "description": "Naranja",
+        "price": 1800,
+        "thumbnail": "thumbnail",
+        "code": "Buzo01",
+        "stock": 50
+    },
+    {
+        "title": "Remera",
+        "description": "Lila",
+        "price": "1500",
+        "thumbnail": "thumbnail",
+        "code": "RM02",
+        "stock": "20"
+    }
+]

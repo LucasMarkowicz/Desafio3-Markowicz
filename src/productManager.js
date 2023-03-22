@@ -1,92 +1,83 @@
-const fs = require("fs");
-const path = require('path');
+const { MongoClient, ObjectId } = require('mongodb');
 
 
 class ProductManager {
-  constructor(path) {
-    this.path = path;
-    this.products = [];
-    this.idCounter = 1;
-    this.readProducts();
+  constructor() {
+    this.connect();
   }
 
-  addProduct(id, title, description, price, thumbnail, code, stock) {
-    if (!id || !title || !description || !price || !thumbnail || !code || !stock) {
-      console.log("Todos los campos son obligatorios");
-      return;
+  async connect() {
+    const uri = 'mongodb+srv://luckpelle1:W3oPN73K1dHJZMun@webstore.wlii359.mongodb.net/test';
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    try {
+      await client.connect();
+      console.log('Connected to the database!');
+      this.collection = client.db('webstore').collection('products');
+    } catch (err) {
+      console.error(err);
     }
+  }
 
-    const existingProduct = this.products.find(p => p.code === code);
+  async addProduct(title, description, price, thumbnail, code, stock, type) {
+    const existingProduct = await this.collection.findOne({ code: code });
     if (existingProduct) {
-      console.log("Ya existe un producto con ese código");
+      console.log('Ya existe un producto con ese código');
       return;
     }
 
-    this.products.push({
-      id: this.idCounter++,
+    const product = {
       title,
       description,
       price,
       thumbnail,
       code,
-      stock
-    });
+      stock,
+      type
+    };
 
-    this.writeProducts();
+    await this.collection.insertOne(product);
+    console.log('Producto agregado');
   }
 
-  getProducts() {
-    return this.products;
+  async getProducts() {
+    const products = await this.collection.find({}).toArray();
+    return products;
   }
 
-  getProductById(id) {
-    const product = this.products.find(p => p.id === id);
-    return product ? product : "No se encuentra dicho producto";
+  async getProductById(id) {
+    const product = await this.collection.findOne({ _id: new ObjectId(id) });
+    return product ? product : 'No se encuentra dicho producto';
   }
 
-  updateProduct(id, updates) {
-    const productIndex = this.products.findIndex(p => p.id === id);
-    if (productIndex === -1) {
-      console.log("No se encuentra dicho producto");
+  async updateProduct(id, updates) {
+    const product = await this.collection.findOne({ _id: new ObjectId(id) });
+    if (!product) {
+      console.log('No se encuentra dicho producto');
       return;
     }
 
-    this.products[productIndex] = {...this.products[productIndex], ...updates};
-    this.writeProducts();
+    await this.collection.updateOne({ _id: new ObjectId(id) }, { $set: updates });
+    console.log('Producto actualizado');
   }
 
-
-  deleteProduct(id) {
-    const productIndex = this.products.findIndex(p => p.id === id);
-    if (productIndex === -1) {
-      console.log("No se encuentra dicho producto para ser eliminado");
+  async deleteProduct(id) {
+    const product = await this.collection.findOne({ _id: new ObjectId(id) });
+    if (!product) {
+      console.log('No se encuentra dicho producto para ser eliminado');
       return;
     }
 
-    this.products.splice(productIndex, 1);
-    this.writeProducts();
-  }
-
-  readProducts() {
-    try {
-      const productsData = fs.readFileSync(this.path, "utf-8");
-      this.products = JSON.parse(productsData);
-      this.idCounter = this.products[this.products.length - 1].id + 1;
-    } catch (err) {
-      console.log("No se pudo leer el archivo de productos");
-    }
-  }
-
-  writeProducts() {
-    try {
-      fs.writeFileSync(this.path, JSON.stringify(this.products), "utf-8");
-    } catch (err) {
-      console.log("No se pudo escribir el archivo de productos");
-    }
+    await this.collection.deleteOne({ _id: new ObjectId(id) });
+    console.log('Producto eliminado');
   }
 }
 
 module.exports = ProductManager;
+
+
+
+
+
 
 
 

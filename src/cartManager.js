@@ -52,6 +52,62 @@ class CartManager {
     this.writeCarts();
     return true;
   }
+
+  removeProductFromCart(cid, pid) {
+    const cart = this.getCart(cid);
+    if (!cart) {
+      return false;
+    }
+
+    const index = cart.products.findIndex(product => product.id === pid);
+    if (index !== -1) {
+      cart.products.splice(index, 1);
+      this.writeCarts();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  updateCart(cid, products) {
+    const cart = this.getCart(cid);
+    if (!cart) {
+      return false;
+    }
+
+    cart.products = products;
+    this.writeCarts();
+    return true;
+  }
+
+  updateProductQuantity(cid, pid, quantity) {
+    const cart = this.getCart(cid);
+    if (!cart) {
+      return false;
+    }
+
+    const existingProduct = cart.products.find(product => product.id === pid);
+    if (existingProduct) {
+      existingProduct.quantity = quantity;
+      this.writeCarts();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  clearCart(cid) {
+    const cart = this.getCart(cid);
+    if (!cart) {
+      return false;
+    }
+
+    cart.products = [];
+    this.writeCarts();
+    return true;
+  }
 }
+
+
 
 module.exports = CartManager;

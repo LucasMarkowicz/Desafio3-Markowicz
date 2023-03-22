@@ -1,169 +1,237 @@
-const http = require('http');
-const express = require('express');
-const { engine } = require('express-handlebars');
-const ProductManager = require('./productManager.js');
-const CartManager = require('./cartManager.js');
+const http = require("http");
+const express = require("express");
+const { engine } = require("express-handlebars");
+const ProductManager = require("./productManager.js");
+const CartManager = require("./cartManager.js");
 const app = express();
 const port = 8080;
-const methodOverride = require('method-override');
-app.use(methodOverride('_method'));
-const server = http.createServer(app); 
-const io = require('socket.io')(server);
 
+const server = http.createServer(app);
+const io = require("socket.io")(server);
 
+const manager = new ProductManager();
+const cartManager = new CartManager("./carts.json");
 
-const manager = new ProductManager('./products.json');
-const cartManager = new CartManager('./carts.json');
-
-app.engine('handlebars', engine());
-app.set('view engine', 'handlebars');
-app.set('views', './src/views');
+app.engine("handlebars", engine());
+app.set("view engine", "handlebars");
+app.set("views", "./src/views");
 app.use(express.json());
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + "/public"));
 
+// endpoint home
+app.get("/", async (req, res) => {
+  try {
+    const { limit = 10, page = 1, sort, query } = req.query;
 
-//endpoint home
-app.get('/', (req, res) => {
-  const products = manager.getProducts();
-  res.render('home', { products });
+    const allProducts = await manager.getProducts();
+
+    const filteredProducts = query
+      ? allProducts.filter((product) => product.type === query)
+      : allProducts;
+
+    const sortedProducts =
+      sort === "desc"
+        ? filteredProducts.sort((a, b) => b.price - a.price)
+        : sort === "asc"
+        ? filteredProducts.sort((a, b) => a.price - b.price)
+        : filteredProducts;
+
+    const totalPages = Math.ceil(sortedProducts.length / limit);
+
+    const products = sortedProducts.slice((page - 1) * limit, page * limit);
+
+    res.render("home", { products, totalPages, currentPage: parseInt(page) });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al obtener la lista de productos");
+  }
 });
 
-
-//endpoint products
-app.get('/api/products', (req, res) => {
+// endpoint products
+app.get("/api/products", async (req, res) => {
   let limit;
   if (req.query.limit) {
     limit = parseInt(req.query.limit);
   } else {
     limit = undefined;
   }
-  const products = manager.getProducts();
+  const products = await manager.getProducts();
   if (limit) {
     res.json({ products: products.slice(0, limit) });
   } else {
-    res.json({ products: products });  }
-});
-
-app.get('/api/products/:pid', (req, res) => {
-  const pid = parseInt(req.params.pid);
-  const products = manager.getProducts();
-  const product = products.find(p => p.id === pid);
-  if (product) {
-    res.json({ product });
-  } else {
-    res.status(404).send('Producto no encontrado');
+    res.json({ products: products });
   }
 });
 
-app.post('/api/products', (req, res) => {
-  const { title, description, price, thumbnail, code, stock } = req.body;
-  const newProduct = manager.addProduct(manager.idCounter, title, description, price, thumbnail, code, stock);
-  res.send("Producto agregado exitosamente");
-  io.emit('addProduct', newProduct);
+app.get("/api/products/:pid", async (req, res) => {
+  const pid = req.params.pid;
+  const product = await manager.getProductById(pid);
+  if (product) {
+    res.json({ product });
+  } else {
+    res.status(404).send("Producto no encontrado");
+  }
 });
 
-app.put('/api/products/:pid', (req, res) => {
-    const pid = parseInt(req.params.pid);
-    const products = manager.getProducts();
-    const productIndex = products.findIndex(p => p.id === pid);
-    if (productIndex === -1) {
-      res.status(404).send('Producto no encontrado');
-    } else {
-      const updatedProduct = {
-        ...products[productIndex],
-        ...req.body,
-      };
-      manager.updateProduct(pid, updatedProduct);
-      res.send("Producto actualizado exitosamente");
-    }
-  });
-  
+app.post("/api/products", async (req, res) => {
+  const { title, description, price, thumbnail, code, stock, type } = req.body;
+  const newProduct = await manager.addProduct(
+    title,
+    description,
+    price,
+    thumbnail,
+    code,
+    stock,
+    type
+  );
+  res.send("Producto agregado exitosamente");
+  io.emit("addProduct", newProduct);
+});
 
-  app.delete('/api/products/:pid', (req, res) => {
-    const pid = parseInt(req.params.pid);
-    const products = manager.getProducts();
-    const productIndex = products.findIndex(p => p.id === pid);
-    if (productIndex === -1) {
-      res.status(404).send('Producto no encontrado');
-    } else {
-      manager.deleteProduct(pid);
-      res.send("Producto eliminado exitosamente");
-      io.emit('deleteProduct', pid);
-    }
-  });
-  
-  
+app.put("/api/products/:pid", async (req, res) => {
+  const pid = req.params.pid;
+  const product = await manager.getProductById(pid);
+  if (!product) {
+    res.status(404).send("Producto no encontrado");
+  } else {
+    const updatedProduct = { ...product, ...req.body };
+    await manager.updateProduct(pid, updatedProduct);
+    res.send("Producto actualizado exitosamente");
+  }
+});
+
+app.delete("/api/products/:pid", async (req, res) => {
+  const pid = req.params.pid;
+  const product = await manager.getProductById(pid);
+  if (!product) {
+    res.status(404).send("Producto no encontrado");
+  } else {
+    await manager.deleteProduct(pid);
+    res.send("Producto eliminado exitosamente");
+    io.emit("deleteProduct", pid);
+  }
+});
 
 //endpoints carrito
 
-app.post('/api/carts/', (req, res) => {
-    const newCart = cartManager.addCart();
-    res.status(201).json({
-      message: "Cart created successfully",
-      cart: newCart
-    });
-  });  
+app.post("/api/carts/", (req, res) => {
+  const newCart = cartManager.addCart();
+  res.status(201).json({
+    message: "Cart created successfully",
+    cart: newCart,
+  });
+});
 
-  app.get('/api/carts/:cid', (req, res) => {
-    const cid = parseInt(req.params.cid);
-    const cart = cartManager.getCart(cid);
-    if (!cart) {
-      return res.status(404).json({
-        message: "Cart not found"
-      });
+app.get("/api/carts/:cid", (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const cart = cartManager.getCart(cid);
+  if (!cart) {
+    return res.status(404).json({
+      message: "Cart not found",
+    });
+  }
+  res.json({
+    cart: cart,
+  });
+});
+
+app.post("/api/carts/:cid/products/:pid", (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const pid = parseInt(req.params.pid);
+  const quantity = 1;
+  if (cartManager.addProductToCart(cid, pid, quantity)) {
+    res.send("Producto agregado exitosamente");
+  } else {
+    res.status(404).send("No se encontró el carrito o el producto");
+  }
+});
+
+app.delete('/api/carts/:cid/products/:pid', (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const pid = parseInt(req.params.pid);
+  const success = cartManager.removeProductFromCart(cid, pid);
+  if (success) {
+    res.send(`Producto ${pid} eliminado del carrito ${cid} exitosamente`);
+  } else {
+    res.status(404).send(`No se encontró el carrito ${cid} o el producto ${pid}`);
+  }
+});
+
+app.put('/api/carts/:cid', (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const products = req.body;
+  const success = cartManager.updateCart(cid, products);
+  if (success) {
+    res.send(`Carrito ${cid} actualizado exitosamente`);
+  } else {
+    res.status(404).send(`No se encontró el carrito ${cid}`);
+  }
+});
+
+app.put('/api/carts/:cid/products/:pid', (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const pid = parseInt(req.params.pid);
+  const quantity = parseInt(req.body.quantity);
+  const success = cartManager.updateProductQuantity(cid, pid, quantity);
+  if (success) {
+    res.send(`Cantidad de producto ${pid} en carrito ${cid} actualizada exitosamente`);
+  } else {
+    res.status(404).send(`No se encontró el carrito ${cid} o el producto ${pid}`);
+  }
+});
+
+app.delete('/api/carts/:cid', (req, res) => {
+  const cid = parseInt(req.params.cid);
+  const success = cartManager.clearCart(cid);
+  if (success) {
+    res.send(`Carrito ${cid} eliminado exitosamente`);
+  } else {
+    res.status(404).send(`No se encontró el carrito ${cid}`);
+  }
+});
+
+
+//websockets
+
+io.on("connection", (socket) => {
+  console.log("Cliente conectado");
+  socket.on("message", (message) => {
+    const { type, payload } = JSON.parse(message);
+    if (type === "addProduct") {
+      const { title, description, price, thumbnail, code, stock, type } = payload;
+      manager.addProduct(
+        manager.idCounter,
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+        type
+      );
+      const products = manager.getProducts();
+      io.sockets.emit("addProduct", products);
     }
-    res.json({
-      cart: cart
-    });
   });
 
-  app.post('/api/carts/:cid/products/:pid', (req, res) => {
-    const cid = parseInt(req.params.cid);
-    const pid = parseInt(req.params.pid);
-    const quantity = 1;
-    if (cartManager.addProductToCart(cid, pid, quantity)) {
-      res.send("Producto agregado exitosamente");
-    } else {
-      res.status(404).send("No se encontró el carrito o el producto");
+  socket.on("deleteProduct", (data) => {
+    const pid = data.id;
+    const result = manager.deleteProduct(pid);
+    if (result) {
+      io.sockets.emit("deleteProduct", pid);
     }
   });
 
-  //websockets
-
-  io.on('connection', socket => {
-    console.log('Cliente conectado');
-    socket.on('message', message => {
-      const { type, payload } = JSON.parse(message);
-      if (type === 'addProduct') {
-        const { title, description, price, thumbnail, code, stock } = payload;
-        manager.addProduct(manager.idCounter, title, description, price, thumbnail, code, stock);
-        const products = manager.getProducts();
-        io.sockets.emit('addProduct', products);
-      }
-    });
-  
-    socket.on('deleteProduct', (data) => {
-      const pid = data.id;
-      const result = manager.deleteProduct(pid);
-      if (result) {
-        io.sockets.emit('deleteProduct', pid);
-      }
-    });
-    
-    socket.on('disconnect', () => {
-      console.log('Cliente desconectado');
-    });
+  socket.on("disconnect", () => {
+    console.log("Cliente desconectado");
   });
-  
-  
-    
-  app.get('/realtimeproducts', (req, res) => {
-    const products = manager.getProducts();
-    res.render('realTimeProducts', { products });
-  });
+});
 
+app.get("/realtimeproducts", (req, res) => {
+  const products = manager.getProducts();
+  res.render("realTimeProducts", { products });
+});
 
 server.listen(port, () => {
   console.log(`Servidor iniciado en http://localhost:${port}`);
 });
-
