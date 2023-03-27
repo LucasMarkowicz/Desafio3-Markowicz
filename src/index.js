@@ -21,7 +21,7 @@ app.use(express.static(__dirname + "/public"));
 // endpoint home
 app.get("/", async (req, res) => {
   try {
-    const { limit = 3, page = 1, sort, query } = req.query;
+    const { limit = 3, page = 1, sort="", query="" } = req.query;
 
     const allProducts = await manager.getProducts();
 
