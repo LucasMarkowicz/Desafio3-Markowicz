@@ -7,7 +7,7 @@ class ProductManager {
   }
 
   async connect() {
-    const uri = 'mongodb+srv://luckpelle1:coder123@webstore.wlii359.mongodb.net/test';
+    const uri = 'mongodb+srv://luckpelle1:password@webstore.wlii359.mongodb.net/test';
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     try {
       await client.connect();
