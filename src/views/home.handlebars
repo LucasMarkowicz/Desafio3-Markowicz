@@ -1,38 +1,78 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Productos</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Lista de productos</h1>
+
+    <form action="/" method="get">
+      <label for="type">Filtrar por tipo:</label>
+      <select name="query" id="type">
+        <option value="">Todos</option>
+        <option value="remeras">Remeras</option>
+        <option value="pantalones">Pantalones</option>
+        <option value="buzos">Buzos</option>
+      </select>
+      <label for="sort">Ordenar por precio:</label>
+      <select name="sort" id="sort">
+        <option value="">Sin orden</option>
+        <option value="asc">Precio ascendente</option>
+        <option value="desc">Precio descendente</option>
+      </select>
+      <button type="submit">Filtrar</button>
+    </form>
+
     <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Precio</th>
-                <th>Imagen</th>
-                <th>Código</th>
-                <th>Stock</th>
-                <th>Type</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each products}}
-                <tr>
-                    <td>{{this._id}}</td>
-                    <td>{{this.title}}</td>
-                    <td>{{this.description}}</td>
-                    <td>${{this.price}}</td>
-                    <td><img src="{{this.thumbnail}}" alt="{{this.title}}"></td>
-                    <td>{{this.code}}</td>
-                    <td>{{this.stock}}</td>
-                    <td>{{this.type}}</td>
-                </tr>
-            {{/each}}
-        </tbody>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Imagen</th>
+          <th>Código</th>
+          <th>Stock</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each products}}
+          <tr>
+            <td>{{this._id}}</td>
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>${{this.price}}</td>
+            <td><img src="{{this.thumbnail}}" alt="{{this.title}}" /></td>
+            <td>{{this.code}}</td>
+            <td>{{this.stock}}</td>
+            <td>{{this.type}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
     </table>
-</body>
+
+    <div>
+      <p>
+        Página
+        {{page}}
+        de
+        {{totalPages}}
+      </p>
+      <div>
+        {{#if hasPrevPage}}
+          <a href="{{prevLink}}">Anterior</a>
+        {{else}}
+          <span>Anterior</span>
+        {{/if}}
+
+        {{#if hasNextPage}}
+          <a href="{{nextLink}}">Siguiente</a>
+        {{else}}
+          <span>Siguiente</span>
+        {{/if}}
+      </div>
+
+    </div>
+  </body>
 </html>

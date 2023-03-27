@@ -21,7 +21,7 @@ app.use(express.static(__dirname + "/public"));
 // endpoint home
 app.get("/", async (req, res) => {
   try {
-    const { limit = 10, page = 1, sort, query } = req.query;
+    const { limit = 3, page = 1, sort, query } = req.query;
 
     const allProducts = await manager.getProducts();
 
@@ -40,12 +40,31 @@ app.get("/", async (req, res) => {
 
     const products = sortedProducts.slice((page - 1) * limit, page * limit);
 
-    res.render("home", { products, totalPages, currentPage: parseInt(page) });
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    const nextPage = hasNextPage ? parseInt(page) + 1 : null;
+    const prevPage = hasPrevPage ? parseInt(page) - 1 : null;
+    const prevLink = hasPrevPage ? `/?page=${prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+    const nextLink = hasNextPage ? `/?page=${nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+
+    res.render("home", {
+      status: "success",
+      products,
+      totalPages,
+      page: parseInt(page),
+      prevPage,
+      nextPage,
+      hasPrevPage,
+      hasNextPage,
+      prevLink,
+      nextLink,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Error al obtener la lista de productos");
   }
 });
+
 
 // endpoint products
 app.get("/api/products", async (req, res) => {
