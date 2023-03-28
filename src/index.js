@@ -1,8 +1,8 @@
 const http = require("http");
 const express = require("express");
 const { engine } = require("express-handlebars");
-const ProductManager = require("./productManager.js");
-const CartManager = require("./cartManager.js");
+const ProductManager = require("./db/productManager.js");
+const CartManager = require("./db/cartManager.js");
 const app = express();
 const port = 8080;
 
@@ -10,7 +10,7 @@ const server = http.createServer(app);
 const io = require("socket.io")(server);
 
 const manager = new ProductManager();
-const cartManager = new CartManager("./carts.json");
+const cartManager = new CartManager();
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -134,56 +134,61 @@ app.delete("/api/products/:pid", async (req, res) => {
 //endpoints carrito
 
 app.post("/api/carts/", (req, res) => {
-  const newCart = cartManager.addCart();
+  const newCart = cartManager.createCart();
   res.status(201).json({
     message: "Cart created successfully",
     cart: newCart,
   });
 });
 
-app.get("/api/carts/:cid", (req, res) => {
-  const cid = parseInt(req.params.cid);
-  const cart = cartManager.getCart(cid);
-  if (!cart) {
-    return res.status(404).json({
-      message: "Cart not found",
-    });
-  }
-  res.json({
-    cart: cart,
-  });
-});
-
-app.post("/api/carts/:cid/products/:pid", (req, res) => {
-  const cid = parseInt(req.params.cid);
-  const pid = parseInt(req.params.pid);
-  const quantity = 1;
-  if (cartManager.addProductToCart(cid, pid, quantity)) {
-    res.send("Producto agregado exitosamente");
+app.get("/api/carts/:cid", async (req, res) => {
+  const cid = req.params.cid;
+  const cart = await cartManager.getCart(cid);
+  if (cart) {
+    res.json({ cart });
   } else {
-    res.status(404).send("No se encontró el carrito o el producto");
+    res.status(404).send("Carrito no encontrado");
   }
 });
 
-app.delete('/api/carts/:cid/products/:pid', (req, res) => {
-  const cid = parseInt(req.params.cid);
-  const pid = parseInt(req.params.pid);
-  const success = cartManager.removeProductFromCart(cid, pid);
-  if (success) {
-    res.send(`Producto ${pid} eliminado del carrito ${cid} exitosamente`);
+app.post("/api/carts/:cid/products/:pid", async (req, res) => {
+  const cid = req.params.cid;
+  const pid = req.params.pid;
+  const product = await manager.getProductById(pid);
+  if (!product) {
+    res.status(404).send("Product not found");
   } else {
-    res.status(404).send(`No se encontró el carrito ${cid} o el producto ${pid}`);
+    const quantity = parseInt(req.body.quantity) || 1;
+    if (await cartManager.addProductToCart(cid, product, quantity)) {
+      res.send("Product added successfully");
+    } else {
+      res.status(404).send("Error occurred");
+    }
   }
 });
+
+
+app.delete("/api/carts/:cid/products/:pid", async (req, res) => {
+  const cid = req.params.cid;
+  const pid = req.params.pid;
+  const result = await cartManager.removeProductFromCart(cid, pid);
+  if (result) {
+    res.send("Product removed successfully");
+  } else {
+    res.status(404).send("Product not found in cart");
+  }
+});
+
+
 
 app.put('/api/carts/:cid', (req, res) => {
   const cid = parseInt(req.params.cid);
   const products = req.body;
-  const success = cartManager.updateCart(cid, products);
+  const success = cartManager.updateProductQuantity(cid, products);
   if (success) {
-    res.send(`Carrito ${cid} actualizado exitosamente`);
+    res.send(`Cart ${cid} updated successfully`);
   } else {
-    res.status(404).send(`No se encontró el carrito ${cid}`);
+    res.status(404).send(`Cart ${cid} not found`);
   }
 });
 

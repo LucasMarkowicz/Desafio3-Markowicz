@@ -1,5 +1,6 @@
-const { MongoClient, ObjectId } = require('mongodb');
-
+const { MongoClient, ObjectId } = require("mongodb");
+const dotenv = require("dotenv");
+dotenv.config();
 
 class ProductManager {
   constructor() {
@@ -7,12 +8,15 @@ class ProductManager {
   }
 
   async connect() {
-    const uri = 'mongodb+srv://luckpelle1:password@webstore.wlii359.mongodb.net/test';
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    const uri = process.env.DB_URI;
+    const client = new MongoClient(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     try {
       await client.connect();
-      console.log('Connected to the database!');
-      this.collection = client.db('webstore').collection('products');
+      console.log("Connected to the database!");
+      this.collection = client.db("webstore").collection("products");
     } catch (err) {
       console.error(err);
     }
@@ -21,7 +25,7 @@ class ProductManager {
   async addProduct(title, description, price, thumbnail, code, stock, type) {
     const existingProduct = await this.collection.findOne({ code: code });
     if (existingProduct) {
-      console.log('Ya existe un producto con ese código');
+      console.log("Ya existe un producto con ese código");
       return;
     }
 
@@ -32,11 +36,11 @@ class ProductManager {
       thumbnail,
       code,
       stock,
-      type
+      type,
     };
 
     await this.collection.insertOne(product);
-    console.log('Producto agregado');
+    console.log("Producto agregado");
   }
 
   async getProducts() {
@@ -44,42 +48,38 @@ class ProductManager {
     return products;
   }
 
-  async getProductById(id) {
-    const product = await this.collection.findOne({ _id: new ObjectId(id) });
-    return product ? product : 'No se encuentra dicho producto';
+  async getProductById(pid) {
+    const result = await this.collection.findOne({ _id: new ObjectId(pid) });
+    return result ? result : null;
   }
 
   async updateProduct(id, updates) {
     const product = await this.collection.findOne({ _id: new ObjectId(id) });
     if (!product) {
-      console.log('No se encuentra dicho producto');
+      console.log("No se encuentra dicho producto");
       return;
     }
 
-    await this.collection.updateOne({ _id: new ObjectId(id) }, { $set: updates });
-    console.log('Producto actualizado');
+    await this.collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updates }
+    );
+    console.log("Producto actualizado");
   }
 
   async deleteProduct(id) {
     const product = await this.collection.findOne({ _id: new ObjectId(id) });
     if (!product) {
-      console.log('No se encuentra dicho producto para ser eliminado');
+      console.log("No se encuentra dicho producto para ser eliminado");
       return;
     }
 
     await this.collection.deleteOne({ _id: new ObjectId(id) });
-    console.log('Producto eliminado');
+    console.log("Producto eliminado");
   }
 }
 
 module.exports = ProductManager;
-
-
-
-
-
-
-
 
 /*
 const manager = new ProductManager('products.json');
