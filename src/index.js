@@ -1,8 +1,8 @@
 const http = require("http");
 const express = require("express");
 const { engine } = require("express-handlebars");
-const ProductManager = require("./db/productManager.js");
-const CartManager = require("./db/cartManager.js");
+const ProductManager = require("./controllers/productManager.js");
+const CartManager = require("./controllers/cartManager.js");
 const app = express();
 const port = 8080;
 

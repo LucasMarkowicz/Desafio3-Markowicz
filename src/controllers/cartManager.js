@@ -1,24 +1,12 @@
-const { MongoClient, ObjectId } = require('mongodb');
-const dotenv = require('dotenv');
-dotenv.config();
+const { connect, getConnection } = require('../db/db.js');
 
 
 class CartManager {
   constructor() {
-    this.connect();
-  }
+    connect();
+    this.collection = getConnection().collection('carts');  }
 
-  async connect() {
-    const uri = process.env.DB_URI;
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-    try {
-      await client.connect();
-      console.log('Connected to the database!');
-      this.collection = client.db('webstore').collection('carts');
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  
 
   async createCart() {
     const result = await this.collection.insertOne({ products: [] });
