@@ -1,4 +1,4 @@
-const { connect, getConnection } = require('../db/db.js');
+const { connect, getConnection, ObjectId } = require('../db/db.js');
 
 
 class CartManager {
@@ -17,6 +17,12 @@ class CartManager {
     const cart = await this.collection.findOne({ _id: new ObjectId(cid) });
     return cart ? cart : 'No se encuentra dicho producto';
   }
+
+  async getFirstCart() {
+    const carts = await getCartCollection();
+    return await carts.findOne();
+  }
+  
 
   async addProductToCart(cid, product, quantity = 1) {
     const cart = await this.getCart(cid);

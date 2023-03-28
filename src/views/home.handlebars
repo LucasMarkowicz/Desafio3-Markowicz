@@ -34,6 +34,8 @@
           <th>Código</th>
           <th>Stock</th>
           <th>Type</th>
+          <th></th>
+          <!-- add a new column for the "Add to Cart" button -->
         </tr>
       </thead>
       <tbody>
@@ -43,10 +45,19 @@
             <td>{{this.title}}</td>
             <td>{{this.description}}</td>
             <td>${{this.price}}</td>
-            <td><img style="width: 40px;" src="{{this.thumbnail}}" alt="{{this.title}}" /></td>
+            <td><img
+                style="width: 40px;"
+                src="{{this.thumbnail}}"
+                alt="{{this.title}}"
+              /></td>
             <td>{{this.code}}</td>
             <td>{{this.stock}}</td>
             <td>{{this.type}}</td>
+            <td>
+
+              <button onclick="" type="submit">Add to Cart</button>
+
+            </td>
           </tr>
         {{/each}}
       </tbody>

@@ -1,4 +1,4 @@
-const { connect, getConnection } = require('../db/db.js');
+const { connect, getConnection, ObjectId} = require('../db/db.js');
 
 
 class ProductManager {

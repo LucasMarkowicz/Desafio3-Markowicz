@@ -141,6 +141,17 @@ app.post("/api/carts/", (req, res) => {
   });
 });
 
+app.get('/carts/:cid', async (req, res) => {
+  const cid = req.params.cid;
+  const cart = await cartManager.getCart(cid);
+  if (cart) {
+    res.render('carts', { cart });
+  } else {
+    res.status(404).send('Cart not found');
+  }
+});
+
+
 app.get("/api/carts/:cid", async (req, res) => {
   const cid = req.params.cid;
   const cart = await cartManager.getCart(cid);

@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -19,4 +19,4 @@ function getConnection() {
   return client.db('webstore');
 }
 
-module.exports = { connect, getConnection };
+module.exports = { connect, getConnection, ObjectId };
