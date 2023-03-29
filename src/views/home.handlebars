@@ -4,9 +4,13 @@
     <title>Productos</title>
   </head>
   <body>
-    <h1>Lista de productos</h1>
+    <p style="text-align: center">{{message}}</p>
+    <form style="text-align: center" action="/logout" method="POST">
+      <button type="submit">Logout</button>
+    </form>
 
-    <form action="/" method="get">
+    <h1>Lista de productos</h1>
+    <form action="/products/" method="get">
       <label for="type">Filtrar por tipo:</label>
       <select name="query" id="type">
         <option value="">Todos</option>
@@ -35,7 +39,6 @@
           <th>Stock</th>
           <th>Type</th>
           <th></th>
-          <!-- add a new column for the "Add to Cart" button -->
         </tr>
       </thead>
       <tbody>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Register</title>
+  </head>
+  <body>
+    <h1>Registrate aquí</h1>
+    {{#if error}}
+      <p>{{ error }}</p>
+    {{/if}}
+    <form action="/register" method="POST">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+      <br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+      <br>
+      <label for="role">Role:</label>
+      <select id="role" name="role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+      <br>
+      <input type="submit" value="Register">
+    </form>
+        <p>Ya tienes una cuenta? <a href="/">Logeate aquí</a></p>
+  </body>
+</html>

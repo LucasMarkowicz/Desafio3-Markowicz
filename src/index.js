@@ -3,6 +3,8 @@ const express = require("express");
 const { engine } = require("express-handlebars");
 const ProductManager = require("./controllers/productManager.js");
 const CartManager = require("./controllers/cartManager.js");
+const UserManager = require('./controllers/userManager.js');
+const session = require('express-session');
 const app = express();
 const port = 8080;
 
@@ -15,11 +17,30 @@ const cartManager = new CartManager();
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(__dirname + "/public"));
 
+app.use(
+  session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+const requireLogin = (req, res, next) => {
+  if (!req.session.user) {
+    res.redirect("/");
+  } else {
+    next();
+  }
+};
+
+
 // endpoint home
-app.get("/", async (req, res) => {
+app.get("/products", requireLogin, async (req, res) => {
+  const { username, role } = req.session.user;
   try {
     const { limit = 3, page = 1, sort="", query="" } = req.query;
 
@@ -44,11 +65,12 @@ app.get("/", async (req, res) => {
     const hasPrevPage = page > 1;
     const nextPage = hasNextPage ? parseInt(page) + 1 : null;
     const prevPage = hasPrevPage ? parseInt(page) - 1 : null;
-    const prevLink = hasPrevPage ? `/?page=${prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
-    const nextLink = hasNextPage ? `/?page=${nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+    const prevLink = hasPrevPage ? `/products/?page=${prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+    const nextLink = hasNextPage ? `/products/?page=${nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
 
     res.render("home", {
       status: "success",
+      message: `Bienvenido, ${username}. Rol: ${role}`,
       products,
       totalPages,
       page: parseInt(page),
@@ -64,6 +86,7 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error al obtener la lista de productos");
   }
 });
+
 
 
 // endpoint products
@@ -224,6 +247,47 @@ app.delete('/api/carts/:cid', (req, res) => {
     res.status(404).send(`No se encontró el carrito ${cid}`);
   }
 });
+
+
+//endpoints login
+
+const users = new UserManager();
+
+app.get('/', (req, res) => {
+  res.render('login');
+});
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const user = await users.loginUser(username, password);
+    req.session.user = user;
+    res.redirect('/products');
+  } catch (err) {
+    res.render('login', { error: err.message });
+  }
+});
+
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+app.post('/register', async (req, res) => {
+  const { username, password, role } = req.body;
+  try {
+    await users.registerUser({ username, password, role });
+    res.redirect('/');
+  } catch (err) {
+    res.render('register', { error: err.message });
+  }
+});
+
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.redirect('/');
+  });
+});
+
 
 
 //websockets
