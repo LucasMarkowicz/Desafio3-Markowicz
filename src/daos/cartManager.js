@@ -8,10 +8,11 @@ class CartManager {
 
   
 
-  async createCart() {
-    const result = await this.collection.insertOne({ products: [] });
-    return result.insertedId;
-  }
+    async createCart() {
+      const result = await this.collection.insertOne({ products: [] });
+      console.log(result, 'soy result')
+      return result.insertedId;
+    }
 
   async getCart(cid) {
     const cart = await this.collection.findOne({ _id: new ObjectId(cid) });
