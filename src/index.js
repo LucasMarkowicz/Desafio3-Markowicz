@@ -3,7 +3,7 @@ const express = require("express");
 const { engine } = require("express-handlebars");
 const ProductManager = require("./daos/productManager.js");
 const CartManager = require("./daos/cartManager.js");
-const UserManager = require('./daos/userManager.js');
+//const UserManager = require('./daos/userManager.js');
 const router = require("../src/routes/index.js")
 const session = require('express-session');
 const app = express();
@@ -89,45 +89,6 @@ app.get("/products", requireLogin, async (req, res) => {
 });
 
 
-
-//endpoints login
-
-const users = new UserManager();
-
-app.get('/', (req, res) => {
-  res.render('login');
-});
-
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const user = await users.loginUser(username, password);
-    req.session.user = user;
-    res.redirect('/products');
-  } catch (err) {
-    res.render('login', { error: err.message });
-  }
-});
-
-app.get('/register', (req, res) => {
-  res.render('register');
-});
-
-app.post('/register', async (req, res) => {
-  const { username, password, role } = req.body;
-  try {
-    await users.registerUser({ username, password, role });
-    res.redirect('/');
-  } catch (err) {
-    res.render('register', { error: err.message });
-  }
-});
-
-app.post('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/');
-  });
-});
 
 
 
