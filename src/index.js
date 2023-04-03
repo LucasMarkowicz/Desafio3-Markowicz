@@ -8,9 +8,10 @@ const router = require("../src/routes/index.js")
 const session = require('express-session');
 const app = express();
 const port = 8080;
+//const { connect } = require("../src/db/db.js");
 
 const server = http.createServer(app);
-const io = require("socket.io")(server);
+/*const io = require("socket.io")(server);*/
 
 const cartManager = new CartManager();
 const manager = new ProductManager();
@@ -38,12 +39,15 @@ const requireLogin = (req, res, next) => {
   }
 };
 
+
 router(app) 
+
+
 // endpoint home
 app.get("/products", requireLogin, async (req, res) => {
   const { username, role } = req.session.user;
   try {
-    const { limit = 3, page = 1, sort="", query="" } = req.query;
+    const { limit = 4, page = 1, sort="", query="" } = req.query;
 
     const allProducts = await manager.getProducts();
 
@@ -60,7 +64,9 @@ app.get("/products", requireLogin, async (req, res) => {
 
     const totalPages = Math.ceil(sortedProducts.length / limit);
 
-    const products = sortedProducts.slice((page - 1) * limit, page * limit);
+    const products = sortedProducts
+      .slice((page - 1) * limit, page * limit)
+      .map(product => product.toObject());
 
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
@@ -92,8 +98,10 @@ app.get("/products", requireLogin, async (req, res) => {
 
 
 
+
 //websockets
 
+/*
 io.on("connection", (socket) => {
   console.log("Cliente conectado");
   socket.on("message", (message) => {
@@ -131,7 +139,9 @@ io.on("connection", (socket) => {
 app.get("/realtimeproducts", (req, res) => {
   const products = manager.getProducts();
   res.render("realTimeProducts", { products });
-});
+}); */
+
+
 
 server.listen(port, () => {
   console.log(`Servidor iniciado en http://localhost:${port}`);

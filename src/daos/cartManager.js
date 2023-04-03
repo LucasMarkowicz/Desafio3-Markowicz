@@ -1,21 +1,18 @@
-const { connect, getConnection, ObjectId } = require('../db/db.js');
+const { ObjectId } = require('../db/db.js');
+const Cart = require("./models/cart.Models.js")
 
 
 class CartManager {
-  constructor() {
-    connect();
-    this.collection = getConnection().collection('carts');  }
-
+ 
   
-
     async createCart() {
-      const result = await this.collection.insertOne({ products: [] });
+      const result = await Cart.create({ products: [] });
       console.log(result, 'soy result')
       return result.insertedId;
     }
 
   async getCart(cid) {
-    const cart = await this.collection.findOne({ _id: new ObjectId(cid) });
+    const cart = await Cart.findOne({ _id: new ObjectId(cid) });
     return cart ? cart : 'No se encuentra dicho producto';
   }
 
@@ -33,7 +30,7 @@ class CartManager {
     } else {
       cart.products.push({...product, quantity});
     }
-    await this.collection.updateOne({ _id: new ObjectId(cid) }, { $set: { products: cart.products } });
+    await Cart.updateOne({ _id: new ObjectId(cid) }, { $set: { products: cart.products } });
     return true;
   }
   
@@ -42,7 +39,7 @@ async removeProductFromCart(cid, pid) {
   const cart = await this.getCart(cid);
   const productToDelete = cart.products.find(p => p._id.toString() === pid);
   if (productToDelete) {
-    await this.collection.updateOne({ _id: new ObjectId(cid) }, { $pull: { products: { _id: new ObjectId(pid) } } });
+    await Cart.updateOne({ _id: new ObjectId(cid) }, { $pull: { products: { _id: new ObjectId(pid) } } });
     return true;
   } else {
     return false;
@@ -61,7 +58,7 @@ async removeProductFromCart(cid, pid) {
     const existingProduct = cart.products.find(p => p.id === productId);
     if (existingProduct) {
       existingProduct.quantity = quantity;
-      await this.collection.updateOne({ _id: new ObjectId(cid) }, { $set: { products: cart.products } });
+      await Cart.updateOne({ _id: new ObjectId(cid) }, { $set: { products: cart.products } });
       return true;
     } else {
       return false;
@@ -76,7 +73,7 @@ async removeProductFromCart(cid, pid) {
     }
 
     cart.products = [];
-    await this.collection.updateOne({ _id: new ObjectId(cid) }, { $set: { products: cart.products } });
+    await Cart.updateOne({ _id: new ObjectId(cid) }, { $set: { products: cart.products } });
     return true;
   }
 }

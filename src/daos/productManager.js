@@ -1,14 +1,10 @@
-const { connect, getConnection, ObjectId} = require('../db/db.js');
-
+const { ObjectId} = require('../db/db.js');
+const Product = require("./models/product.Models.js")
 
 class ProductManager {
-  constructor() {
-    connect();
-    this.collection = getConnection().collection('products');  
-  }
-
+  
   async addProduct(title, description, price, thumbnail, code, stock, type) {
-    const existingProduct = await this.collection.findOne({ code: code });
+    const existingProduct = await Product.findOne({ code: code });
     if (existingProduct) {
       console.log("Ya existe un producto con ese código");
       return;
@@ -24,28 +20,32 @@ class ProductManager {
       type,
     };
 
-    await this.collection.insertOne(product);
+    await Product.create(product);
     console.log("Producto agregado");
   }
 
   async getProducts() {
-    const products = await this.collection.find({}).toArray();
+    try{
+    const products = await Product.find({});
     return products;
+    } catch(e){
+      console.log(e);
+    }
   }
 
   async getProductById(pid) {
-    const result = await this.collection.findOne({ _id: new ObjectId(pid) });
+    const result = await Product.findOne({ _id: new ObjectId(pid) });
     return result ? result : null;
   }
 
   async updateProduct(id, updates) {
-    const product = await this.collection.findOne({ _id: new ObjectId(id) });
+    const product = await Product.findOne({ _id: new ObjectId(id) });
     if (!product) {
       console.log("No se encuentra dicho producto");
       return;
     }
 
-    await this.collection.updateOne(
+    await Product.updateOne(
       { _id: new ObjectId(id) },
       { $set: updates }
     );
@@ -53,13 +53,13 @@ class ProductManager {
   }
 
   async deleteProduct(id) {
-    const product = await this.collection.findOne({ _id: new ObjectId(id) });
+    const product = await Product.findOne({ _id: new ObjectId(id) });
     if (!product) {
       console.log("No se encuentra dicho producto para ser eliminado");
       return;
     }
 
-    await this.collection.deleteOne({ _id: new ObjectId(id) });
+    await Product.deleteOne({ _id: new ObjectId(id) });
     console.log("Producto eliminado");
   }
 }

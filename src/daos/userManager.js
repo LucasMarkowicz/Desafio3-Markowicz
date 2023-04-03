@@ -1,14 +1,10 @@
 const bcrypt = require('bcrypt');
-const { connect, getConnection } = require('../db/db.js');
+const User = require("./models/user.Models.js");
 
 class UserManager {
-  constructor() {
-    connect();
-    this.collection = getConnection().collection('users');
-  }
 
   async registerUser(userData) {
-    const userExists = await this.collection.findOne({ username: userData.username });
+    const userExists = await User.findOne({ username: userData.username });
   
     if (userExists) {
       throw new Error('User already exists');
@@ -22,13 +18,13 @@ class UserManager {
       role: userData.role || 'usuario',
     };
   
-    const result = await this.collection.insertOne(newUser);
+    const result = await User.create(newUser);
   
     return result;
   }
   
   async loginUser(username, password) {
-    const user = await this.collection.findOne({ username });
+    const user = await User.findOne({ username });
   
     if (!user) {
       throw new Error('User not found');
@@ -44,7 +40,7 @@ class UserManager {
   }
   
   async getUserRole(username) {
-    const user = await this.collection.findOne({ username });
+    const user = await User.findOne({ username });
   
     if (!user) {
       throw new Error('User not found');

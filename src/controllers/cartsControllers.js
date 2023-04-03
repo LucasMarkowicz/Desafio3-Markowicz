@@ -1,7 +1,9 @@
 const { Router } = require("express")
 const router = Router()
 const CartManager = require("../daos/cartManager.js");
+const ProductManager = require("../daos/productManager.js")
 const cartManager = new CartManager();
+const manager = new ProductManager();
 
 //endpoints carrito
 
@@ -17,11 +19,16 @@ router.post("/", (req, res) => {
     const cid = req.params.cid;
     const cart = await cartManager.getCart(cid);
     if (cart) {
-      res.render('carts', { cart });
+      const data = {
+        cartId: cart._id,
+        products: cart.products
+      };
+      res.render('carts', { data });
     } else {
       res.status(404).send('Cart not found');
     }
   });
+  
   
   
   router.get("/:cid", async (req, res) => {

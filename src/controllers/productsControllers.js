@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
       type
     );
     res.send("Producto agregado exitosamente");
-    io.emit("addProduct", newProduct);
+    //io.emit("addProduct", newProduct);
   });
   
   router.put("/:pid", async (req, res) => {
