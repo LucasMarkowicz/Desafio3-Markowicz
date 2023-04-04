@@ -31,7 +31,7 @@ router.post("/", (req, res) => {
   
   
   
-  router.get("/:cid", async (req, res) => {
+  /*router.get("/:cid", async (req, res) => {
     const cid = req.params.cid;
     const cart = await cartManager.getCart(cid);
     if (cart) {
@@ -39,23 +39,24 @@ router.post("/", (req, res) => {
     } else {
       res.status(404).send("Carrito no encontrado");
     }
-  });
+  });*/
   
   router.post("/:cid/products/:pid", async (req, res) => {
-    const cid = req.params.cid;
-    const pid = req.params.pid;
-    const product = await manager.getProductById(pid);
-    if (!product) {
-      res.status(404).send("Product not found");
-    } else {
-      const quantity = parseInt(req.body.quantity) || 1;
-      if (await cartManager.addProductToCart(cid, product, quantity)) {
-        res.send("Product added successfully");
-      } else {
-        res.status(404).send("Error occurred");
-      }
-    }
-  });
+    try {
+        
+        const { cid, pid } = req.params;
+        const respuesta = await cartManager.addProductToCart(cid, pid);
+        if (!respuesta) {
+            res.json({ mensage: "Carrito no encontrado" })
+        }
+        else {
+            res.json(respuesta)
+        }
+    } catch (error) {
+        console.log(error)
+    
+  }})
+  
   
   
   router.delete("/:cid/products/:pid", async (req, res) => {

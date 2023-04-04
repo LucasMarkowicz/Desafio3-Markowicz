@@ -9,6 +9,8 @@ const session = require('express-session');
 const app = express();
 const port = 8080;
 //const { connect } = require("../src/db/db.js");
+const dotenv = require('dotenv');
+dotenv.config();
 
 const server = http.createServer(app);
 /*const io = require("socket.io")(server);*/
@@ -30,6 +32,47 @@ app.use(
     saveUninitialized: false,
   })
 );
+
+const passport = require('passport');
+const GitHubStrategy = require('passport-github2').Strategy;
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj);
+});
+
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: 'http://localhost:8080/auth/github/callback',
+    },
+    (accessToken, refreshToken, profile, done) => {
+      const user = { username: profile.username, role: 'user' };
+      return done(null, user);
+    }
+  )
+);
+
+app.get('/auth/github', passport.authenticate('github'));
+
+app.get(
+  '/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  (req, res) => {
+    req.session.user = req.user;
+    res.redirect('/products');
+  }
+);
+
+
 
 const requireLogin = (req, res, next) => {
   if (!req.session.user) {
