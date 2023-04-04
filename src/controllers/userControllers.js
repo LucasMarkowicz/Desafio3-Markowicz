@@ -11,9 +11,9 @@ router.get('/', (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   try {
-    const user = await users.loginUser(username, password);
+    const user = await users.loginUser(email, password);
     req.session.user = user;
     res.redirect('/products');
   } catch (err) {
@@ -26,9 +26,9 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-  const { username, password, role } = req.body;
+  const { email, password, role } = req.body;
   try {
-    await users.registerUser({ username, password, role });
+    await users.registerUser({ email, password, role });
     res.redirect('/');
   } catch (err) {
     res.render('register', { error: err.message });

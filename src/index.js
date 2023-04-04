@@ -55,7 +55,7 @@ passport.use(
       callbackURL: 'http://localhost:8080/auth/github/callback',
     },
     (accessToken, refreshToken, profile, done) => {
-      const user = { username: profile.username, role: 'user' };
+      const user = { email: profile.username, role: 'user' };
       return done(null, user);
     }
   )
@@ -88,7 +88,7 @@ router(app)
 
 // endpoint home
 app.get("/products", requireLogin, async (req, res) => {
-  const { username, role } = req.session.user;
+  const { email, role } = req.session.user;
   try {
     const { limit = 4, page = 1, sort="", query="" } = req.query;
 
@@ -120,7 +120,7 @@ app.get("/products", requireLogin, async (req, res) => {
 
     res.render("home", {
       status: "success",
-      message: `Bienvenido, ${username}. Rol: ${role}`,
+      message: `Bienvenido, ${email}. Rol: ${role}`,
       products,
       totalPages,
       page: parseInt(page),
