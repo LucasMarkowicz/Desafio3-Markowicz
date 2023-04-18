@@ -21,10 +21,12 @@ const cartSchema = new mongoose.Schema({
   }
 })
 cartSchema.pre("find",function(next){
-  this.populate("products.productId");
+  this.populate({
+    path: "products.product",
+    options: { strictPopulate: false }
+  });
   next()
 })
-
 
 
 const Cart = mongoose.model(cartCollection, cartSchema);

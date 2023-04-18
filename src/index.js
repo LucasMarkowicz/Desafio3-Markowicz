@@ -11,6 +11,7 @@ const port = 8080;
 //const { connect } = require("../src/db/db.js");
 const dotenv = require('dotenv');
 dotenv.config();
+const Cart = require("./daos/models/cart.Models.js");
 
 const server = http.createServer(app);
 /*const io = require("socket.io")(server);*/
@@ -139,6 +140,13 @@ app.get("/products", requireLogin, async (req, res) => {
 
 
 
+//endpoint cart:
+
+
+
+server.listen(port, () => {
+  console.log(`Servidor iniciado en http://localhost:${port}`);
+});
 
 
 
@@ -183,9 +191,3 @@ app.get("/realtimeproducts", (req, res) => {
   const products = manager.getProducts();
   res.render("realTimeProducts", { products });
 }); */
-
-
-
-server.listen(port, () => {
-  console.log(`Servidor iniciado en http://localhost:${port}`);
-});

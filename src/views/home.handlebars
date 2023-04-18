@@ -7,6 +7,7 @@
     <p style="text-align: center">{{message}}</p>
     <form style="text-align: center" action="/logout" method="POST">
       <button type="submit">Logout</button>
+      <a class="nav-link" id="linkToCart" aria-current="page" href="#">Carrito</a>
     </form>
 
     <h1>Lista de productos</h1>
@@ -41,8 +42,8 @@
           <th></th>
         </tr>
       </thead>
-      <tbody>
-        {{#each products}}
+      <tbody id="tableProduct">
+        {{!-- {{#each products}}
           <tr>
             <td>{{this._id}}</td>
             <td>{{this.title}}</td>
@@ -62,7 +63,7 @@
 
             </td>
           </tr>
-        {{/each}}
+        {{/each}} --}}
       </tbody>
     </table>
 
@@ -89,4 +90,5 @@
 
     </div>
   </body>
+<script src="/js/products.js"></script>
 </html>

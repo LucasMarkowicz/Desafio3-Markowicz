@@ -10,8 +10,7 @@ const productManager = new ProductManager();
 router.post("/", async (req, res) => {
   const newCart = await cartManager.createCart();
   res.status(201).json({
-    message: "Cart created successfully",
-    cart: newCart,
+    cart: newCart._id.toString()
   });
 });
 
@@ -19,7 +18,12 @@ router.get('/:cid', async (req, res) => {
   const cid = req.params.cid;
   const cart = await cartManager.getCart(cid);
   if (cart) {
-    res.json(cart);
+    const cartProducts = cart.products
+    //const firstProduct = cartProducts[0].product;
+    /*res.json(cartProducts);*/
+    res.render("cart", cartProducts);
+    console.log(cartProducts);
+    //console.log(firstProduct)
   } else {
     res.status(404).send('Cart not found');
   }
@@ -30,7 +34,7 @@ router.post("/:cid/products/:pid", async (req, res) => {
     const { cid, pid } = req.params;
     const updatedCart = await cartManager.addProductToCart(cid, pid);
     if (updatedCart) {
-      res.json(updatedCart);
+      res.send(updatedCart);
     } else {
       res.status(404).send('Cart not found');
     }
