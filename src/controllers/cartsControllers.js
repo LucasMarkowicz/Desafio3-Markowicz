@@ -20,8 +20,8 @@ router.get('/:cid', async (req, res) => {
   if (cart) {
     const cartProducts = cart.products
     //const firstProduct = cartProducts[0].product;
-    /*res.json(cartProducts);*/
-    res.render("cart", cartProducts);
+    res.json(cartProducts);
+    //res.render("cart", cartProducts);
     console.log(cartProducts);
     //console.log(firstProduct)
   } else {

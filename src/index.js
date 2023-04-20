@@ -139,8 +139,11 @@ app.get("/products", requireLogin, async (req, res) => {
 });
 
 
+//endpoint carrito
+// ...
 
-//endpoint cart:
+
+// ...
 
 
 

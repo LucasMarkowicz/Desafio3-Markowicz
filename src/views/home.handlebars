@@ -43,27 +43,32 @@
         </tr>
       </thead>
       <tbody id="tableProduct">
-        {{!-- {{#each products}}
-          <tr>
-            <td>{{this._id}}</td>
-            <td>{{this.title}}</td>
-            <td>{{this.description}}</td>
-            <td>${{this.price}}</td>
-            <td><img
-                style="width: 40px;"
-                src="{{this.thumbnail}}"
-                alt="{{this.title}}"
-              /></td>
-            <td>{{this.code}}</td>
-            <td>{{this.stock}}</td>
-            <td>{{this.type}}</td>
-            <td>
+         {{#if products}}
+  {{#each products}}
+    <tr>
+      <td>{{this._id}}</td>
+      <td>{{this.title}}</td>
+      <td>{{this.description}}</td>
+      <td>${{this.price}}</td>
+      <td><img
+          style="width: 40px;"
+          src="{{this.thumbnail}}"
+          alt="{{this.title}}"
+        /></td>
+      <td>{{this.code}}</td>
+      <td>{{this.stock}}</td>
+      <td>{{this.type}}</td>
+      <td>
+        <button id="{{this._id}}">Add to Cart</button>
+      </td>
+    </tr>
+  {{/each}}
+{{else}}
+  <tr>
+    <td colspan="9">No se encontraron productos.</td>
+  </tr>
+{{/if}}
 
-              <button type="submit">Add to Cart</button>
-
-            </td>
-          </tr>
-        {{/each}} --}}
       </tbody>
     </table>
 
