@@ -141,8 +141,25 @@ app.get("/products", requireLogin, async (req, res) => {
 
 //endpoint carrito
 // ...
-
-
+app.get('/cart/:cid', async (req, res) => {
+  try {
+    const cid = req.params.cid;
+    const cart = await cartManager.getCart(cid);
+    if (cart) {
+      const cartProducts = cart.products
+      const productArray = cartProducts.map(({ product: { _id, ...rest } }) => rest);
+      console.log("soy productArray", productArray);
+      //const firstProduct = cartProducts[0].product;
+      res.render("cart", {productArray});
+      console.log("soy cartProducts", cartProducts);
+      //console.log(firstProduct)
+    } else {
+      res.status(404).send('Cart not found');
+    }
+  }
+  catch(e){
+    console.log(e)
+  }})
 // ...
 
 

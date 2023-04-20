@@ -1,0 +1,37 @@
+{{#if productArray.length}}
+<table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripcion</th>         
+          <th>Categoria</th>
+          <th>Precio</th>
+       </tr>
+      </thead>
+      <tbody>
+        {{#each productArray}}
+    <tr>
+   <td>
+        {{this.title}}
+    </td>
+    <td>
+        {{this.description}}
+    </td>
+    <td>
+        {{this.type}}
+    </td>
+    <td>
+        {{this.price}}
+    </td>
+    </tr>
+
+
+{{/each}}
+        
+      </tbody>
+
+
+{{else}}
+<h2>Carrito Vacio</h2>
+
+{{/if}}
