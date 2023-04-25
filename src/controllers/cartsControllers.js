@@ -4,13 +4,18 @@ const CartManager = require("../daos/cartManager.js");
 const ProductManager = require("../daos/productManager.js")
 const cartManager = new CartManager();
 const productManager = new ProductManager();
+const {cartVerification} = require("../middlewares/cartVerification.js");
 
 // endpoints carrito
 
-router.post("/", async (req, res) => {
-  const newCart = await cartManager.createCart();
-  res.status(201).json({
-    cart: newCart._id.toString()
+router.post("/", cartVerification, async (req, res) => {
+  //const newCart = await cartManager.createCart();
+  console.log("soy req.session.user", req.session.user)
+  const cartId = req.session.user.associatedCart._id
+  console.log("soy cartId de cartsControllers", cartId)
+  res.status(200).json({
+    cartId
+    //cart: newCart._id.toString()
   });
 });
 

@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  let cartId = sessionStorage.getItem("cartId");
+//  let cartId = sessionStorage.getItem("cartId");
 
-  if (!cartId) {
     const cartCreation = await fetch("http://localhost:8080/api/carts", {
       method: "POST",
       headers: {
@@ -10,10 +9,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const responseJson = await cartCreation.json();
-    cartId = responseJson.cart;
+    console.log("soy responseJson", responseJson)
+    cartId = responseJson.cartId;
+    console.log("soy cartId", cartId);
     sessionStorage.setItem("cartId", cartId);
-    alert("Carrito creado");
-  }
+    //alert("Carrito creado");
+  
 
   const buttons = document.querySelectorAll("button[id]");
 

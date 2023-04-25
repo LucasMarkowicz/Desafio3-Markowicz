@@ -12,6 +12,7 @@ const port = 8080;
 const dotenv = require('dotenv');
 dotenv.config();
 const Cart = require("./daos/models/cart.Models.js");
+const MongoStore = require("connect-mongo");
 
 const server = http.createServer(app);
 /*const io = require("socket.io")(server);*/
@@ -31,6 +32,10 @@ app.use(
     secret: 'secret',
     resave: false,
     saveUninitialized: false,
+    store:new MongoStore({
+    mongoUrl: process.env.MONGODB_URI,
+  ttl:120000
+  })
   })
 );
 
@@ -90,6 +95,8 @@ router(app)
 // endpoint home
 app.get("/products", requireLogin, async (req, res) => {
   const { email, role } = req.session.user;
+  console.log("soy req.session", req.session)
+  console.log("soy req.session.user", req.session.user)
   try {
     const { limit = 4, page = 1, sort="", query="" } = req.query;
 
@@ -159,7 +166,7 @@ app.get('/cart/:cid', async (req, res) => {
   }
   catch(e){
     console.log(e)
-  }})
+  }})/*
 // ...
 
 
