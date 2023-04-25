@@ -40,6 +40,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
   let cartLink = document.getElementById("linkToCart");
-  cartLink.setAttribute("href", `http://localhost:8080/cart/${cartId}`);
+  cartLink.setAttribute("href", `http://localhost:8080/api/carts/${cartId}`);
 });
 

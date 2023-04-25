@@ -19,7 +19,28 @@ router.post("/", cartVerification, async (req, res) => {
   });
 });
 
+
 router.get('/:cid', async (req, res) => {
+  try {
+    const cid = req.params.cid;
+    const cart = await cartManager.getCart(cid);
+    if (cart) {
+      const cartProducts = cart.products
+      const productArray = cartProducts.map(({ product: { _id, ...rest } }) => rest);
+      console.log("soy productArray", productArray);
+      //const firstProduct = cartProducts[0].product;
+      res.render("cart", {productArray});
+      console.log("soy cartProducts", cartProducts);
+      //console.log(firstProduct)
+    } else {
+      res.status(404).send('Cart not found');
+    }
+  }
+  catch(e){
+    console.log(e)
+  }})
+
+/*router.get('/:cid', async (req, res) => {
   const cid = req.params.cid;
   const cart = await cartManager.getCart(cid);
   if (cart) {
@@ -32,7 +53,7 @@ router.get('/:cid', async (req, res) => {
   } else {
     res.status(404).send('Cart not found');
   }
-});
+});*/
 
 router.post("/:cid/products/:pid", async (req, res) => {
   try {

@@ -15,7 +15,7 @@ router.post('/login', async (req, res) => {
   try {
     const user = await users.loginUser(email, password);
     req.session.user = user;
-    res.redirect('/products');
+    res.redirect('/api/products');
   } catch (err) {
     res.render('login', { error: err.message });
   }

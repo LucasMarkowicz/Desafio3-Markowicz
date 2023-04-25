@@ -2,10 +2,63 @@ const { Router } = require("express")
 const router = Router()
 const ProductManager = require("../daos/productManager.js");
 const manager = new ProductManager();
+const { requireLogin } = require("../middlewares/requireLogin.js")
 
 
 // endpoint products
-router.get("/", async (req, res) => {
+router.get("/", requireLogin, async (req, res) => {
+  const { email, role } = req.session.user;
+  console.log("soy req.session", req.session)
+  console.log("soy req.session.user", req.session.user)
+  try {
+    const { limit = 4, page = 1, sort="", query="" } = req.query;
+
+    const allProducts = await manager.getProducts();
+
+    const filteredProducts = query
+      ? allProducts.filter((product) => product.type === query)
+      : allProducts;
+
+    const sortedProducts =
+      sort === "desc"
+        ? filteredProducts.sort((a, b) => b.price - a.price)
+        : sort === "asc"
+        ? filteredProducts.sort((a, b) => a.price - b.price)
+        : filteredProducts;
+
+    const totalPages = Math.ceil(sortedProducts.length / limit);
+
+    const products = sortedProducts
+      .slice((page - 1) * limit, page * limit)
+      .map(product => product.toObject());
+
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    const nextPage = hasNextPage ? parseInt(page) + 1 : null;
+    const prevPage = hasPrevPage ? parseInt(page) - 1 : null;
+    const prevLink = hasPrevPage ? `/api/products/?page=${prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+    const nextLink = hasNextPage ? `/api/products/?page=${nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+
+    res.render("home", {
+      status: "success",
+      message: `Bienvenido, ${email}. Rol: ${role}`,
+      products,
+      totalPages,
+      page: parseInt(page),
+      prevPage,
+      nextPage,
+      hasPrevPage,
+      hasNextPage,
+      prevLink,
+      nextLink,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al obtener la lista de productos");
+  }
+});
+
+/*router.get("/", async (req, res) => {
     let limit;
     if (req.query.limit) {
       limit = parseInt(req.query.limit);
@@ -18,7 +71,7 @@ router.get("/", async (req, res) => {
     } else {
       res.json({ products: products });
     }
-  });
+  });*/
   
   router.get("/:pid", async (req, res) => {
     const pid = req.params.pid;
