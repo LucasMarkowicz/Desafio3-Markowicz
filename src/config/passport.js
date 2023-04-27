@@ -1,8 +1,6 @@
 const passport = require('passport');
 const GitHubStrategy = require('passport-github2').Strategy;
-const { Router } = require("express")
-const router = Router()
-
+const User = require("../daos/models/user.Models")
 
 passport.serializeUser((user, done) => {
   done(null, user);
@@ -19,20 +17,22 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: 'http://localhost:8080/auth/github/callback',
     },
-    (accessToken, refreshToken, profile, done) => {
-      const user = { email: profile.username, role: 'user' };
-      return done(null, user);
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.username;
+        const user = await User.findOne({ email });
+        if (user) {
+          return done(null, user);
+        } else {
+          const newUser = await User.create({ email, role: 'user' });
+          return done(null, newUser);
+        }
+      } catch (err) {
+        return done(err);
+      }
     }
   )
 );
 
-router.get('/auth/github', passport.authenticate('github'));
 
-router.get(
-  '/auth/github/callback',
-  passport.authenticate('github', { failureRedirect: '/login' }),
-  (req, res) => {
-    req.session.user = req.user;
-    res.redirect('/api/products');
-  }
-);
+module.exports = passport;

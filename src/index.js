@@ -1,18 +1,16 @@
 const http = require("http");
 const express = require("express");
 const { engine } = require("express-handlebars");
-const router = require("../src/routes/index.js")
+const router = require("../src/routes/index.js");
 const session = require('express-session');
 const app = express();
 const port = 8080;
 const dotenv = require('dotenv');
 dotenv.config();
 const MongoStore = require("connect-mongo");
+const passport = require("../src/config/passport.js");
+
 const server = http.createServer(app);
-/*const io = require("socket.io")(server);*/
-const passport = require('passport');
-
-
 
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -33,32 +31,8 @@ app.use(
   })
 );
 
-//const GitHubStrategy = require('passport-github2').Strategy;
-
 app.use(passport.initialize());
 app.use(passport.session());
-
-/*passport.serializeUser((user, done) => {
-  done(null, user);
-});
-
-passport.deserializeUser((obj, done) => {
-  done(null, obj);
-});
-
-passport.use(
-  new GitHubStrategy(
-    {
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: 'http://localhost:8080/auth/github/callback',
-    },
-    (accessToken, refreshToken, profile, done) => {
-      const user = { email: profile.username, role: 'user' };
-      return done(null, user);
-    }
-  )
-);
 
 app.get('/auth/github', passport.authenticate('github'));
 
@@ -69,11 +43,9 @@ app.get(
     req.session.user = req.user;
     res.redirect('/api/products');
   }
-);*/
+);
 
-router(app) 
-
-
+router(app);
 
 server.listen(port, () => {
   console.log(`Servidor iniciado en http://localhost:${port}`);
