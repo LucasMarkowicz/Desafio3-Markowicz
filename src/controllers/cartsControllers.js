@@ -37,7 +37,7 @@ router.get('/:cid', async (req, res) => {
       const productArray = cartProducts.map(({ product: { _id, ...rest } }) => rest);
       console.log("soy productArray", productArray);
       //const firstProduct = cartProducts[0].product;
-      res.render("cart", {productArray});
+      res.render("cart", {productArray, cid});
       console.log("soy cartProducts", cartProducts);
       //console.log(firstProduct)
     } else {

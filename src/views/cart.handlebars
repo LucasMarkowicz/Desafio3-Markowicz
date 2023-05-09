@@ -1,50 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
     {{#if productArray.length}}
-<table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Descripcion</th>         
-          <th>Categoria</th>
-          <th>Precio</th>
-       </tr>
-      </thead>
-      <tbody>
-        {{#each productArray}}
-    <tr>
-   <td>
-        {{this.title}}
-    </td>
-    <td>
-        {{this.description}}
-    </td>
-    <td>
-        {{this.type}}
-    </td>
-    <td>
-        {{this.price}}
-    </td>
-    </tr>
-    
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each productArray}}
+            <tr>
+                <td>
+                    {{this.title}}
+                </td>
+                <td>
+                    {{this.description}}
+                </td>
+                <td>
+                    {{this.type}}
+                </td>
+                <td>
+                    {{this.price}}
+                </td>
+            </tr>
 
 
-{{/each}}
-  <button id="ticket-send">Enviar ticket de compra</button>
-      </tbody>
+
+            {{/each}}
+            <form method="POST" action="{{cid}}/purchase">
+                <input type="hidden" name="cid" value="{{cid}}">
+                <button type="submit">Enviar Ticket de Compra</button>
+            </form>
+        </tbody>
 
 
-{{else}}
-<h2>Carrito Vacio</h2>
+        {{else}}
+        <h2>Carrito Vacio</h2>
 
-{{/if}}
+        {{/if}}
 </body>
-<script src="/js/test.js"></script>
+
 </html>
