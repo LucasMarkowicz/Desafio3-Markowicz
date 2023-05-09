@@ -90,44 +90,7 @@ class CartManager {
       console.log(error);
     }
   }
-   /* try {
-      const productID = await product.getProductById(pid);
-      const cart = await Cart.findById(cid);
-
-      if (!cart) {
-        return null;
-      } else {
-        const existingProduct = cart.products.find(
-          (p) => p.product.toString() === pid
-        );
-
-        if (existingProduct) {
-          await Cart.updateOne(
-            { _id: cid, "products.product": pid },
-            { $inc: { "products.$.quantity": 1 } }
-          );
-        } else {
-          await Cart.updateOne(
-            { _id: cid },
-            {
-              $push: {
-                products: {
-                  product: pid,
-                  quantity: 1,
-                  objeto: productID,
-                },
-              },
-            }
-          );
-        }
-
-        const updatedCart = await Cart.findById(cid);
-        return updatedCart;
-      }
-    } catch (error) {
-      console.log(error);
-    }*/
-  
+   
 
   async removeProductFromCart(cid, pid) {
     const cart = await Cart.findById(cid);

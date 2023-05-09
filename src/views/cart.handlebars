@@ -1,4 +1,13 @@
-{{#if productArray.length}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {{#if productArray.length}}
 <table>
       <thead>
         <tr>
@@ -24,10 +33,11 @@
         {{this.price}}
     </td>
     </tr>
+    
 
 
 {{/each}}
-        
+  <button id="ticket-send">Enviar ticket de compra</button>
       </tbody>
 
 
@@ -35,3 +45,6 @@
 <h2>Carrito Vacio</h2>
 
 {{/if}}
+</body>
+<script src="/js/test.js"></script>
+</html>
