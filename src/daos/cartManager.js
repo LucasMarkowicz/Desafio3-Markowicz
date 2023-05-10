@@ -13,7 +13,7 @@ class CartManager {
     try {
       const cart = await Cart.findById(cid).populate({
         path: "products.product",
-        select: "title description price thumbnail code stock type",
+        select: "title description price thumbnail code stock category",
         options: { lean: true },
       });
       return cart;

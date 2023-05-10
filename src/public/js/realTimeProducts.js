@@ -10,7 +10,8 @@ form.addEventListener('submit', e => {
     price: formData.get('price'),
     thumbnail: formData.get('thumbnail'),
     code: formData.get('code'),
-    stock: formData.get('stock')
+    stock: formData.get('stock'),
+    category: formData.get('category')
   };
   fetch('/api/products', {
     method: 'POST',
@@ -31,7 +32,7 @@ form.addEventListener('submit', e => {
 
 
 
-const deleteForms = document.querySelectorAll('#delete-form');
+/*const deleteForms = document.querySelectorAll('#delete-form');
 
 deleteForms.forEach(form => {
   form.addEventListener('submit', e => {
@@ -52,3 +53,4 @@ deleteForms.forEach(form => {
   });
 });
 
+*/

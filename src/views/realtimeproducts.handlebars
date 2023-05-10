@@ -1,52 +1,42 @@
 <html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>Real-Time Products</title>
+    <meta charset="UTF-8" />
+    <title>Real time products</title>
   </head>
-  <body>
-    <h1>Real-Time Products</h1>
-    <ul>
-      {{#each products}}
-        <li>
-          <strong>{{this.title}}</strong>
-          <br />
-          {{this.description}}
-          <br />
-          ${{this.price}}
-          <form id="delete-form" data-id="{{id}}">
-  <button type="submit">Eliminar</button>
-</form>
 
+<body>
+  <h1>Real-Time Products</h1>
+  
+  {{products}}
 
-</form>
-        </li>
-      {{/each}}
-    </ul>
+  <form id="add-product-form" action="/api/products" method="POST">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" /><br />
 
-    <form id="add-product-form" action="/api/products" method="POST">
-      <label for="title">Title:</label>
-      <input type="text" id="title" name="title" /><br />
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description" /><br />
 
-      <label for="description">Description:</label>
-      <input type="text" id="description" name="description" /><br />
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" /><br />
 
-      <label for="price">Price:</label>
-      <input type="number" id="price" name="price" /><br />
+    <label for="thumbnail">Thumbnail:</label>
+    <input type="text" id="thumbnail" name="thumbnail" /><br />
 
-      <label for="thumbnail">Thumbnail:</label>
-      <input type="text" id="thumbnail" name="thumbnail" /><br />
+    <label for="code">Code:</label>
+    <input type="text" id="code" name="code" /><br />
 
-      <label for="code">Code:</label>
-      <input type="text" id="code" name="code" /><br />
+    <label for="stock">Stock:</label>
+    <input type="number" id="stock" name="stock" /><br />
 
-      <label for="stock">Stock:</label>
-      <input type="number" id="stock" name="stock" /><br />
+    <label for="category">Category:</label>
+    <input type="text" id="category" name="category" /><br />
 
-      <input type="submit" value="Submit" />
-    </form>
+    <input type="submit" value="Submit" />
+  </form>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/realTimeProducts.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/realTimeProducts.js"></script>
+</body>
 
-      </body>
 </html>

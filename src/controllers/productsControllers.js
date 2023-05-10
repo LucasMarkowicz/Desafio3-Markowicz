@@ -16,7 +16,7 @@ router.get("/", requireLogin, async (req, res) => {
     const allProducts = await manager.getProducts();
 
     const filteredProducts = query
-      ? allProducts.filter((product) => product.type === query)
+      ? allProducts.filter((product) => product.category === query)
       : allProducts;
 
     const sortedProducts =
@@ -84,7 +84,7 @@ router.get("/", requireLogin, async (req, res) => {
   });
   
   router.post("/", async (req, res) => {
-    const { title, description, price, thumbnail, code, stock, type } = req.body;
+    const { title, description, price, thumbnail, code, stock, category } = req.body;
     const newProduct = await manager.addProduct(
       title,
       description,
@@ -92,7 +92,7 @@ router.get("/", requireLogin, async (req, res) => {
       thumbnail,
       code,
       stock,
-      type
+      category
     );
     res.send("Producto agregado exitosamente");
     //io.emit("addProduct", newProduct);
@@ -121,5 +121,6 @@ router.get("/", requireLogin, async (req, res) => {
       io.emit("deleteProduct", pid);
     }
   });
+
 
   module.exports = router

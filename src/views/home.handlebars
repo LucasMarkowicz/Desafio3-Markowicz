@@ -12,8 +12,8 @@
 
     <h1>Lista de productos</h1>
     <form action="/api/products/" method="get">
-      <label for="type">Filtrar por tipo:</label>
-      <select name="query" id="type">
+      <label for="type">Filtrar por categoría:</label>
+      <select name="query" id="category">
         <option value="">Todos</option>
         <option value="remeras">Remeras</option>
         <option value="pantalones">Pantalones</option>
@@ -38,7 +38,7 @@
           <th>Imagen</th>
           <th>Código</th>
           <th>Stock</th>
-          <th>Type</th>
+          <th>Category</th>
           <th></th>
         </tr>
       </thead>
@@ -57,7 +57,7 @@
         /></td>
       <td>{{this.code}}</td>
       <td>{{this.stock}}</td>
-      <td>{{this.type}}</td>
+      <td>{{this.category}}</td>
       <td>
         <button id="{{this._id}}">Add to Cart</button>
       </td>

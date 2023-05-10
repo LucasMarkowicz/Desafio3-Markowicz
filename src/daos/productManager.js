@@ -3,7 +3,7 @@ const Product = require("./models/product.Models.js")
 
 class ProductManager {
   
-  async addProduct(title, description, price, thumbnail, code, stock, type) {
+  async addProduct(title, description, price, thumbnail, code, stock, category) {
     const existingProduct = await Product.findOne({ code: code });
     if (existingProduct) {
       console.log("Ya existe un producto con ese código");
@@ -17,7 +17,7 @@ class ProductManager {
       thumbnail,
       code,
       stock,
-      type,
+      category,
     };
 
     await Product.create(product);
