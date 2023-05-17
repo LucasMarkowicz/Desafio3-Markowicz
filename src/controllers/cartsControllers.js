@@ -10,6 +10,9 @@ const Cart = require('../daos/models/cart.Models')
 const User = require('../daos/models/user.Models')
 const Product = require('../daos/models/product.Models')
 const accessRole = require('../middlewares/accessRole');
+const cartErrors = require('../errors/cartErrors.js');
+const userErrors = require('../errors/userErrors.js');
+
 
 
 
@@ -18,7 +21,6 @@ const accessRole = require('../middlewares/accessRole');
 
 router.post("/", cartVerification, async (req, res) => {
   //const newCart = await cartManager.createCart();
-  console.log("soy req.session.user", req.session.user)
   const cartId = req.session.user.associatedCart._id
   console.log("soy cartId de cartsControllers", cartId)
   res.status(200).json({
@@ -34,14 +36,14 @@ router.get('/:cid', async (req, res) => {
     const cart = await cartManager.getCart(cid);
     if (cart) {
       const cartProducts = cart.products
-      const productArray = cartProducts.map(({ product: { _id, ...rest } }) => rest);
-      console.log("soy productArray", productArray);
+      const productArray = cartProducts.map(({ product: { _id, ...rest }, quantity}) => ({ ...rest, quantity }));
+      console.log("soy productArray", productArray)
       //const firstProduct = cartProducts[0].product;
       res.render("cart", {productArray, cid});
       console.log("soy cartProducts", cartProducts);
       //console.log(firstProduct)
     } else {
-      res.status(404).send('Cart not found');
+      res.status(404).send(cartErrors.CART_NOT_FOUND);
     }
   }
   catch(e){
@@ -70,7 +72,7 @@ router.post("/:cid/products/:pid", accessRole('user'), async (req, res) => {
     if (updatedCart) {
       res.send(updatedCart);
     } else {
-      res.status(404).send('Cart not found');
+      res.status(404).send(cartErrors.CART_NOT_FOUND);
     }
   } catch (error) {
     console.log(error);
@@ -97,7 +99,7 @@ router.put("/:cid/products/:pid", async (req, res) => {
     if (updatedCart) {
       res.json(updatedCart);
     } else {
-      res.status(404).send('Cart not found');
+      res.status(404).send(cartErrors.CART_NOT_FOUND);
     }
   } catch (error) {
     console.log(error);
@@ -125,19 +127,19 @@ router.post('/:cid/purchase', async (req, res) => {
     const cart = await Cart.findById(cid);
 
     if (!cart) {
-      return res.status(404).json({ error: 'El carrito no existe' });
+      return res.status(404).json({ error: cartErrors.CART_NOT_FOUND });
     }
 
     const user = await User.findOne({ associatedCart: String(cid) });
     if (!user) {
-      return res.status(404).json({ error: 'El usuario no existe' });
+      return res.status(404).json({ error: userErrors.USER_NOT_FOUND });
     }
     const purchaser = user.email;
 
     for (const cartProduct of cart.products) {
       const product = await Product.findById(cartProduct.product._id);
       if (!product || product.stock < cartProduct.quantity) {
-        return res.status(400).json({ error: `El producto ${cartProduct.product._id} no tiene suficiente stock` });
+        return res.status(400).json({ error: cartErrors.INSUFFICIENT_STOCK });
       }
     }
 
@@ -157,7 +159,7 @@ router.post('/:cid/purchase', async (req, res) => {
     res.json({ message: 'Compra realizada con éxito', ticket });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'Error al procesar la compra' });
+    res.status(500).json({ error: cartErrors.PROCESSING_ERROR });
   }
 });
 

@@ -2,6 +2,8 @@ const { /*MongoClient,*/ ObjectId } = require('mongodb');
 const mongoose = require("mongoose");
 const dotenv = require('dotenv');
 dotenv.config();
+const mongoErrors = require('../errors/mongoErrors.js');
+
 
 
 mongoose.connect(process.env.MONGODB_URI, {
@@ -14,7 +16,7 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', (error) => {
-  console.error('Error de conexión a MongoDB:', error);
+  console.error(mongoErrors.CONNECTION_FAILED, error);
 });
 
 

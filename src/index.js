@@ -13,7 +13,8 @@ const server = http.createServer(app);
 const io = require("socket.io")(server);
 const ProductManager = require("../src/daos/productManager.js");
 const manager = new ProductManager();
-const accessRole = require('./middlewares/accessRole');
+const accessRole = require("./middlewares/accessRole");
+const { requireLogin } = require("./middlewares/requireLogin.js")
 
 
 app.engine("handlebars", engine());
@@ -51,6 +52,94 @@ app.get(
 
 router(app);
 
+//faker y mocking
+const { faker } = require("@faker-js/faker");
+const generateFakeProducts = () => {
+  const fakeProducts = [];
+  
+
+  for (let i = 0; i < 100; i++) {
+  const categorias = ["remeras", "pantalones", "buzos"];
+  const randomIndex = Math.floor(Math.random() * categorias.length);
+    const fakeProduct = {
+      _id: faker.database.mongodbObjectId(),
+      title: faker.commerce.productName(),
+      description: faker.lorem.sentence(),
+      price: faker.number.int(20000),
+      thumbnail: faker.image.url(),
+      code: faker.number.int(),
+      stock: faker.number.int(100),
+      category: categorias[randomIndex],
+    };
+    fakeProducts.push(fakeProduct);
+  }
+
+    return fakeProducts;
+  };
+  
+  const fakeProducts = generateFakeProducts();
+
+app.get("/mockingproducts", requireLogin, async (req, res) => {
+
+
+  const { email, role } = req.session.user;
+  console.log("soy req.session", req.session);
+  console.log("soy req.session.user", req.session.user);
+  try {
+    const { limit = 4, page = 1, sort = "", query = "" } = req.query;
+
+    const allProducts = await fakeProducts;
+
+    const filteredProducts = query
+      ? allProducts.filter((product) => product.category === query)
+      : allProducts;
+
+    const sortedProducts =
+      sort === "desc"
+        ? filteredProducts.sort((a, b) => b.price - a.price)
+        : sort === "asc"
+        ? filteredProducts.sort((a, b) => a.price - b.price)
+        : filteredProducts;
+
+    const totalPages = Math.ceil(sortedProducts.length / limit);
+
+    const products = sortedProducts
+      .slice((page - 1) * limit, page * limit)
+      .map((product) => product);
+
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+    const nextPage = hasNextPage ? parseInt(page) + 1 : null;
+    const prevPage = hasPrevPage ? parseInt(page) - 1 : null;
+    const prevLink = hasPrevPage
+      ? `/mockingproducts/?page=${prevPage}&limit=${limit}&sort=${sort}&query=${query}`
+      : null;
+    const nextLink = hasNextPage
+      ? `/mockingproducts/?page=${nextPage}&limit=${limit}&sort=${sort}&query=${query}`
+      : null;
+
+    res.render("mocking", {
+      status: "success",
+      message: `Bienvenido, ${email}. Rol: ${role}`,
+      products,
+      totalPages,
+      page: parseInt(page),
+      prevPage,
+      nextPage,
+      hasPrevPage,
+      hasNextPage,
+      prevLink,
+      nextLink,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error al obtener la lista de productos");
+  }
+});
+
+
+
+
 //websockets
 
 io.on("connection", (socket) => {
@@ -69,7 +158,7 @@ io.on("connection", (socket) => {
         stock,
         category
       );
-      const products =  manager.getProducts();
+      const products = manager.getProducts();
       io.sockets.emit("addProduct", products);
     }
   });
@@ -87,7 +176,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get("/realtimeproducts", accessRole('admin'), async (req, res) => {
+app.get("/realtimeproducts", accessRole("admin"), async (req, res) => {
   const products = await manager.getProducts();
   res.render("realtimeproducts", { products });
 });

@@ -24,6 +24,7 @@
     "socket.io": "^4.6.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.0.1",
     "nodemon": "^2.0.20"
   }
 }

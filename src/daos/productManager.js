@@ -1,13 +1,14 @@
 const { ObjectId} = require('../db/db.js');
-const Product = require("./models/product.Models.js")
+const Product = require("./models/product.Models.js");
+const productErrors = require("../errors/productErrors.js");
+
 
 class ProductManager {
   
   async addProduct(title, description, price, thumbnail, code, stock, category) {
     const existingProduct = await Product.findOne({ code: code });
     if (existingProduct) {
-      console.log("Ya existe un producto con ese código");
-      return;
+      throw new Error(productErrors.PRODUCT_EXISTS);
     }
 
     const product = {
@@ -41,8 +42,7 @@ class ProductManager {
   async updateProduct(id, updates) {
     const product = await Product.findOne({ _id: new ObjectId(id) });
     if (!product) {
-      console.log("No se encuentra dicho producto");
-      return;
+      throw new Error(productErrors.PRODUCT_NOT_FOUND);
     }
 
     await Product.updateOne(
@@ -55,8 +55,7 @@ class ProductManager {
   async deleteProduct(id) {
     const product = await Product.findOne({ _id: new ObjectId(id) });
     if (!product) {
-      console.log("No se encuentra dicho producto para ser eliminado");
-      return;
+      throw new Error(productErrors.PRODUCT_NOT_FOUND);
     }
 
     await Product.deleteOne({ _id: new ObjectId(id) });

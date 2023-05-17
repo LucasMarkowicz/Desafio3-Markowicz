@@ -1,5 +1,7 @@
 const bcrypt = require('bcrypt');
 const User = require("./models/user.Models.js");
+const userErrors = require('../errors/userErrors.js');
+
 
 class UserManager {
 
@@ -7,7 +9,7 @@ class UserManager {
     const userExists = await User.findOne({ email: userData.email });
   
     if (userExists) {
-      throw new Error('User already exists');
+      throw new Error(userErrors.USER_EXISTS);
     }
   
     const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -27,13 +29,13 @@ class UserManager {
     const user = await User.findOne({ email });
   
     if (!user) {
-      throw new Error('User not found');
+      throw new Error(userErrors.USER_NOT_FOUND);
     }
   
     const passwordMatch = await bcrypt.compare(password, user.password);
   
     if (!passwordMatch) {
-      throw new Error('Invalid password');
+      throw new Error(userErrors.INVALID_PASSWORD);
     }
   
     return user;
@@ -43,7 +45,7 @@ class UserManager {
     const user = await User.findOne({ email });
   
     if (!user) {
-      throw new Error('User not found');
+      throw new Error(userErrors.USER_NOT_FOUND);
     }
   
     return user.role;

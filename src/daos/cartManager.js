@@ -2,6 +2,8 @@ const { ObjectId } = require("../db/db.js");
 const Cart = require("./models/cart.Models.js");
 const ProductManager = require("./productManager.js");
 const productDao = new ProductManager();
+const cartErrors = require("../errors/cartErrors.js");
+
 
 class CartManager {
   async createCart() {
@@ -19,6 +21,8 @@ class CartManager {
       return cart;
     } catch (error) {
       console.log(error);
+      throw new Error(cartErrors.GENERAL_ERROR);
+
 
       /*const cart = await Cart.findOne({ _id: new ObjectId(cid) });
     if (cart) {
@@ -33,7 +37,6 @@ class CartManager {
     const carts = await getCartCollection();
     return await carts.findOne();
   }
-
   async addProductToCart(cid, pid) {
     try {
       const cart = await Cart.findById(cid);
@@ -44,33 +47,29 @@ class CartManager {
         if (!product) {
           return product;
         }
-        if (cart.products.length) {
-          const productIndex = cart.products.findIndex((e) => e.product == pid);
-          if (productIndex !== -1) {
-            let updateQ = await Cart.updateOne(
+        const productIndex = cart.products.findIndex((e) => e.product == pid);
+        const productStock = product.stock;
+
+        if (productStock === 0) {
+          throw new Error(cartErrors.OUT_OF_STOCK);
+        }
+
+        if (productIndex !== -1) {
+          const cartProduct = cart.products[productIndex];
+          const productQuantity = cartProduct.quantity;
+          console.log("soy productQuantity", productQuantity);
+          console.log("soy productStock", productStock);
+
+          if (productQuantity >= productStock) {
+            throw new Error(cartErrors.QUANTITY_EXCEEDS_STOCK);
+          } else {
+            await Cart.updateOne(
               { _id: cid, "products.product": pid },
               { $inc: { "products.$.quantity": 1 } }
             );
-            const updatedCart = await Cart.findById(cid).populate('products.product');
-            return updatedCart;
-          } else {
-            const pushProduct = Cart.updateOne(
-              { _id: cid },
-              {
-                $push: {
-                  products: {
-                    product: product._id,
-                    quantity: 1,
-                  },
-                },
-              }
-            );
-            await pushProduct;
-            const updatedCart = await Cart.findById(cid).populate('products.product');
-            return updatedCart;
           }
         } else {
-          const pushProduct = Cart.updateOne(
+          await Cart.updateOne(
             { _id: cid },
             {
               $push: {
@@ -81,27 +80,28 @@ class CartManager {
               },
             }
           );
-          await pushProduct;
-          const updatedCart = await Cart.findById(cid).populate('products.product');
-          return updatedCart;
         }
+        const updatedCart = await Cart.findById(cid).populate(
+          "products.product"
+        );
+        return updatedCart;
       }
     } catch (error) {
       console.log(error);
+      throw new Error(cartErrors.GENERAL_ERROR);
     }
   }
-   
 
   async removeProductFromCart(cid, pid) {
     const cart = await Cart.findById(cid);
     if (!cart) {
-      throw new Error("Carrito no encontrado");
+      throw new Error(cartErrors.CART_NOT_FOUND);
     }
     const productIndex = cart.products.findIndex(
       (p) => p.product.toString() === pid
     );
     if (productIndex === -1) {
-      throw new Error("Producto no encontrado en el carrito");
+      throw new Error(cartErrors.PRODUCT_NOT_FOUND);
     }
     cart.products.splice(productIndex, 1);
     await cart.save();
@@ -125,13 +125,14 @@ class CartManager {
       }
     } catch (error) {
       console.log(error);
+      throw new Error(cartErrors.GENERAL_ERROR);
     }
   }
 
   async clearCart(cid) {
     const cart = await Cart.findById(cid);
     if (!cart) {
-      throw new Error("Cart not found");
+      throw new Error(cartErrors.CART_NOT_FOUND);
     }
     cart.products.splice(0, cart.products.length);
     await cart.save();

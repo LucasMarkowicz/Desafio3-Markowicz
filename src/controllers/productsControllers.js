@@ -2,7 +2,9 @@ const { Router } = require("express")
 const router = Router()
 const ProductManager = require("../daos/productManager.js");
 const manager = new ProductManager();
-const { requireLogin } = require("../middlewares/requireLogin.js")
+const { requireLogin } = require("../middlewares/requireLogin.js");
+const productErrors = require("../errors/productErrors.js");
+
 
 
 // endpoint products
@@ -54,7 +56,7 @@ router.get("/", requireLogin, async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error al obtener la lista de productos");
+    res.status(500).send(productErrors.PRODUCT_LIST_ERROR);
   }
 });
 
@@ -79,7 +81,7 @@ router.get("/", requireLogin, async (req, res) => {
     if (product) {
       res.json({ product });
     } else {
-      res.status(404).send("Producto no encontrado");
+      res.status(404).send(productErrors.PRODUCT_NOT_FOUND);
     }
   });
   
@@ -102,7 +104,7 @@ router.get("/", requireLogin, async (req, res) => {
     const pid = req.params.pid;
     const product = await manager.getProductById(pid);
     if (!product) {
-      res.status(404).send("Producto no encontrado");
+      res.status(404).send(productErrors.PRODUCT_NOT_FOUND);
     } else {
       const updatedProduct = { ...product, ...req.body };
       await manager.updateProduct(pid, updatedProduct);
@@ -114,7 +116,7 @@ router.get("/", requireLogin, async (req, res) => {
     const pid = req.params.pid;
     const product = await manager.getProductById(pid);
     if (!product) {
-      res.status(404).send("Producto no encontrado");
+      res.status(404).send(productErrors.PRODUCT_NOT_FOUND);
     } else {
       await manager.deleteProduct(pid);
       res.send("Producto eliminado exitosamente");
