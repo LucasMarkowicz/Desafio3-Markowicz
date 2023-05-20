@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  {{#if productArray}}
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripcion</th>
+        <th>Categoria</th>
+        <th>Precio</th>
+        <th>Cantidad</th> <!-- Nueva columna para mostrar la cantidad -->
+      </tr>
+    </thead>
+    <tbody>
+      {{#each productArray}}
+      <tr>
+        <td>
+          {{this.title}}
+        </td>
+        <td>
+          {{this.description}}
+        </td>
+        <td>
+          {{this.category}}
+        </td>
+        <td>
+          {{this.price}}
+        </td>
+        <td>
+          {{this.quantity}} <!-- Mostrar la cantidad del producto -->
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table> <!-- Cerrar la etiqueta <table> correctamente -->
+
+  <form method="POST" action="{{cid}}/purchase">
+    <input type="hidden" name="cid" value="{{cid}}">
+    <button type="submit">Enviar Ticket de Compra</button>
+  </form>
+
+  <button id="btn" value="{{cid}}">Borrar Carrito</button> <!-- Agregar el botón para borrar el carrito -->
+
+  {{else}}
+  <h2>Carrito Vacio</h2>
+  {{/if}}
+
+  <script src="/js/carts.js">
+
+  </script>
+
+</body>
+
+</html>

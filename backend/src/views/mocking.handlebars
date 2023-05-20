@@ -1,0 +1,98 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Productos</title>
+  </head>
+  <body>
+    <p style="text-align: center">{{message}}</p>
+    <form style="text-align: center" action="/logout" method="POST">
+      <button type="submit">Logout</button>
+      <a class="nav-link" id="linkToCart" aria-current="page" href="#">Carrito</a>
+    </form>
+
+    <h1>Lista de productos mocking</h1>
+    <form action="/mockingproducts/" method="get">
+      <label for="type">Filtrar por categoría:</label>
+      <select name="query" id="category">
+        <option value="">Todos</option>
+        <option value="remeras">Remeras</option>
+        <option value="pantalones">Pantalones</option>
+        <option value="buzos">Buzos</option>
+      </select>
+      <label for="sort">Ordenar por precio:</label>
+      <select name="sort" id="sort">
+        <option value="">Sin orden</option>
+        <option value="asc">Precio ascendente</option>
+        <option value="desc">Precio descendente</option>
+      </select>
+      <button type="submit">Filtrar</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Imagen</th>
+          <th>Código</th>
+          <th>Stock</th>
+          <th>Category</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableProduct">
+         {{#if products}}
+  {{#each products}}
+    <tr>
+      <td>{{this._id}}</td>
+      <td>{{this.title}}</td>
+      <td>{{this.description}}</td>
+      <td>${{this.price}}</td>
+      <td><img
+          style="width: 40px;"
+          src="{{this.thumbnail}}"
+          alt="{{this.title}}"
+        /></td>
+      <td>{{this.code}}</td>
+      <td>{{this.stock}}</td>
+      <td>{{this.category}}</td>
+      <td>
+        <button id="{{this._id}}">Add to Cart</button>
+      </td>
+    </tr>
+  {{/each}}
+{{else}}
+  <tr>
+    <td colspan="9">No se encontraron productos.</td>
+  </tr>
+{{/if}}
+
+      </tbody>
+    </table>
+
+    <div>
+      <p>
+        Página
+        {{page}}
+        de
+        {{totalPages}}
+      </p>
+      <div>
+        {{#if hasPrevPage}}
+          <a href="{{prevLink}}">Anterior</a>
+        {{else}}
+          <span>Anterior</span>
+        {{/if}}
+
+        {{#if hasNextPage}}
+          <a href="{{nextLink}}">Siguiente</a>
+        {{else}}
+          <span>Siguiente</span>
+        {{/if}}
+      </div>
+
+    </div>
+  </body>
+</html>
